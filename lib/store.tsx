@@ -502,10 +502,12 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     if (patch.dailyReminderTime !== undefined)
       dbPatch.daily_reminder_time = patch.dailyReminderTime;
 
-    await sb
+    const { error } = await sb
       .from("couple_members")
       .update(dbPatch)
       .eq("user_id", user!.id);
+
+    if (error) throw new Error(error.message);
 
     setState((s) => ({
       ...s,

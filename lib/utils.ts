@@ -45,6 +45,27 @@ export function elapsedSince(fromISO: string, now: Date = new Date()): ElapsedTi
   return { days, hours, minutes, seconds, totalMs: diff };
 }
 
+/** Countdown to a calendar date at local midnight. Returns null if that date is today or past. */
+export function timeUntilDate(
+  dateISO: string,
+  now: Date = new Date()
+): ElapsedTime | null {
+  const [y, m, d] = dateISO.slice(0, 10).split("-").map(Number);
+  if (!y || !m || !d) return null;
+  const target = new Date(y, m - 1, d, 0, 0, 0, 0);
+  const diff = target.getTime() - now.getTime();
+  if (diff <= 0) return null;
+  const days = Math.floor(diff / 86_400_000);
+  const hours = Math.floor((diff % 86_400_000) / 3_600_000);
+  const minutes = Math.floor((diff % 3_600_000) / 60_000);
+  const seconds = Math.floor((diff % 60_000) / 1_000);
+  return { days, hours, minutes, seconds, totalMs: diff };
+}
+
+export function isFutureDate(dateISO: string): boolean {
+  return timeUntilDate(dateISO) !== null;
+}
+
 /** Combine date + HH:MM into a sortable timestamp. */
 export function plannedDateTime(dateISO: string, time: string): Date {
   return new Date(`${dateISO}T${time}:00`);

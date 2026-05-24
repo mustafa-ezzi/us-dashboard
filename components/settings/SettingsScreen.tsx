@@ -1,10 +1,20 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useStore } from "@/lib/store";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { NotificationSettings } from "@/components/settings/NotificationSettings";
 import { Heart, LogOut, RefreshCw } from "lucide-react";
+import { todayKey } from "@/lib/utils";
+
+interface CoupleDraft {
+  herName: string;
+  herEmoji: string;
+  himName: string;
+  himEmoji: string;
+  anniversary: string;
+  engagement: string;
+}
 
 export function SettingsScreen() {
   const {
@@ -20,13 +30,77 @@ export function SettingsScreen() {
   } = useStore();
 
   const [refreshing, setRefreshing] = useState(false);
-  const anniversaryValue = state.settings.anniversaryISO.slice(0, 10);
-  const engagementValue = state.settings.engagementISO?.slice(0, 10) ?? "";
+  const [saving, setSaving] = useState(false);
+  const [msg, setMsg] = useState<string | null>(null);
+
+  const [draft, setDraft] = useState<CoupleDraft>(() => ({
+    herName: state.settings.her.name,
+    herEmoji: state.settings.her.emoji,
+    himName: state.settings.him.name,
+    himEmoji: state.settings.him.emoji,
+    anniversary: state.settings.anniversaryISO.slice(0, 10),
+    engagement: state.settings.engagementISO?.slice(0, 10) ?? "",
+  }));
+
+  useEffect(() => {
+    setDraft({
+      herName: state.settings.her.name,
+      herEmoji: state.settings.her.emoji,
+      himName: state.settings.him.name,
+      himEmoji: state.settings.him.emoji,
+      anniversary: state.settings.anniversaryISO.slice(0, 10),
+      engagement: state.settings.engagementISO?.slice(0, 10) ?? "",
+    });
+  }, [state.settings]);
 
   const meName =
     partner === "her" ? state.settings.her.name : state.settings.him.name;
   const meEmoji =
     partner === "her" ? state.settings.her.emoji : state.settings.him.emoji;
+
+  const isDirty =
+    draft.herName !== state.settings.her.name ||
+    draft.herEmoji !== state.settings.her.emoji ||
+    draft.himName !== state.settings.him.name ||
+    draft.himEmoji !== state.settings.him.emoji ||
+    draft.anniversary !== state.settings.anniversaryISO.slice(0, 10) ||
+    draft.engagement !== (state.settings.engagementISO?.slice(0, 10) ?? "");
+
+  const saveCoupleSettings = async () => {
+    setSaving(true);
+    setMsg(null);
+    try {
+      if (draft.herName.trim() && draft.herName !== state.settings.her.name) {
+        await updatePartnerName("her", draft.herName.trim());
+      }
+      if (draft.himName.trim() && draft.himName !== state.settings.him.name) {
+        await updatePartnerName("him", draft.himName.trim());
+      }
+      if (draft.herEmoji !== state.settings.her.emoji) {
+        await updatePartnerEmoji("her", draft.herEmoji);
+      }
+      if (draft.himEmoji !== state.settings.him.emoji) {
+        await updatePartnerEmoji("him", draft.himEmoji);
+      }
+      if (draft.anniversary !== state.settings.anniversaryISO.slice(0, 10)) {
+        await setAnniversary(new Date(draft.anniversary).toISOString());
+      }
+      const currentEngagement =
+        state.settings.engagementISO?.slice(0, 10) ?? "";
+      if (draft.engagement !== currentEngagement) {
+        await setEngagementDate(
+          draft.engagement
+            ? new Date(draft.engagement).toISOString()
+            : null
+        );
+      }
+      setMsg("Settings saved ✓");
+    } catch {
+      setMsg("Could not save. Check your connection and try again.");
+    } finally {
+      setSaving(false);
+    }
+  };
 
   return (
     <div className="space-y-4">
@@ -73,21 +147,18 @@ export function SettingsScreen() {
         <div className="mt-1.5 flex gap-2">
           <input
             className="input flex-1"
-            defaultValue={state.settings.her.name}
-            onBlur={(e) => {
-              const v = e.target.value.trim();
-              if (v && v !== state.settings.her.name) updatePartnerName("her", v);
-            }}
+            value={draft.herName}
+            onChange={(e) =>
+              setDraft((d) => ({ ...d, herName: e.target.value }))
+            }
             maxLength={32}
           />
           <input
             className="input w-16 text-center text-xl"
-            defaultValue={state.settings.her.emoji}
-            onBlur={(e) => {
-              const v = e.target.value;
-              if (v && v !== state.settings.her.emoji)
-                updatePartnerEmoji("her", v);
-            }}
+            value={draft.herEmoji}
+            onChange={(e) =>
+              setDraft((d) => ({ ...d, herEmoji: e.target.value }))
+            }
             maxLength={4}
           />
         </div>
@@ -96,21 +167,18 @@ export function SettingsScreen() {
         <div className="mt-1.5 flex gap-2">
           <input
             className="input flex-1"
-            defaultValue={state.settings.him.name}
-            onBlur={(e) => {
-              const v = e.target.value.trim();
-              if (v && v !== state.settings.him.name) updatePartnerName("him", v);
-            }}
+            value={draft.himName}
+            onChange={(e) =>
+              setDraft((d) => ({ ...d, himName: e.target.value }))
+            }
             maxLength={32}
           />
           <input
             className="input w-16 text-center text-xl"
-            defaultValue={state.settings.him.emoji}
-            onBlur={(e) => {
-              const v = e.target.value;
-              if (v && v !== state.settings.him.emoji)
-                updatePartnerEmoji("him", v);
-            }}
+            value={draft.himEmoji}
+            onChange={(e) =>
+              setDraft((d) => ({ ...d, himEmoji: e.target.value }))
+            }
             maxLength={4}
           />
         </div>
@@ -119,40 +187,47 @@ export function SettingsScreen() {
         <input
           type="date"
           className="input mt-1.5"
-          value={anniversaryValue}
-          max={new Date().toISOString().slice(0, 10)}
+          value={draft.anniversary}
+          max={todayKey()}
           onChange={(e) =>
-            setAnniversary(new Date(e.target.value).toISOString())
+            setDraft((d) => ({ ...d, anniversary: e.target.value }))
           }
         />
 
-        <label className="label mt-4 block">Engagement date</label>
+        <label className="label mt-4 block">Planned engagement date</label>
         <p className="mt-1 text-xs text-ink-muted">
-          Starts the engagement timer on Home. Only editable here.
+          The countdown on Home ticks down to this day. You&apos;re not engaged
+          yet — pick a future date.
         </p>
         <input
           type="date"
           className="input mt-1.5"
-          value={engagementValue}
-          max={new Date().toISOString().slice(0, 10)}
-          onChange={(e) => {
-            const v = e.target.value;
-            setEngagementDate(v ? new Date(v).toISOString() : null);
-          }}
+          value={draft.engagement}
+          min={todayKey()}
+          onChange={(e) =>
+            setDraft((d) => ({ ...d, engagement: e.target.value }))
+          }
         />
-        {engagementValue && (
+        {draft.engagement && (
           <button
             type="button"
-            onClick={() => setEngagementDate(null)}
+            onClick={() => setDraft((d) => ({ ...d, engagement: "" }))}
             className="mt-2 text-xs font-medium text-rose-700 underline-offset-2 hover:underline"
           >
             Clear engagement date
           </button>
         )}
 
-        <p className="mt-3 text-[11px] text-ink-subtle">
-          Changes save automatically when you tap away from a field.
-        </p>
+        <button
+          type="button"
+          onClick={saveCoupleSettings}
+          disabled={!isDirty || saving}
+          className="btn-primary mt-5 w-full disabled:opacity-50"
+        >
+          {saving ? "Saving…" : "Save settings"}
+        </button>
+
+        {msg && <p className="mt-3 text-xs text-rose-700">{msg}</p>}
       </section>
 
       <p className="pt-2 text-center text-xs text-ink-subtle">

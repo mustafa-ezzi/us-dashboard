@@ -151,6 +151,11 @@ drop policy if exists "members read membership" on public.couple_members;
 create policy "members read membership" on public.couple_members
   for select using (couple_id = public.current_couple_id());
 
+drop policy if exists "members update own row" on public.couple_members;
+create policy "members update own row" on public.couple_members
+  for update using (user_id = auth.uid())
+  with check (user_id = auth.uid());
+
 drop policy if exists "own push subscriptions" on public.push_subscriptions;
 create policy "own push subscriptions" on public.push_subscriptions
   for all using (user_id = auth.uid())

@@ -24,4 +24,10 @@ create policy "own push subscriptions" on public.push_subscriptions
   for all using (user_id = auth.uid())
   with check (user_id = auth.uid());
 
+-- Allow each user to update their own notification prefs on couple_members
+drop policy if exists "members update own row" on public.couple_members;
+create policy "members update own row" on public.couple_members
+  for update using (user_id = auth.uid())
+  with check (user_id = auth.uid());
+
 -- Server (service role) reads all subs for sending — no extra policy needed.

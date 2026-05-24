@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useStore } from "@/lib/store";
 import {
   isPushSupported,
@@ -12,10 +12,18 @@ import { Bell, BellOff, Loader2 } from "lucide-react";
 export function NotificationSettings() {
   const { state, updateNotificationPrefs } = useStore();
   const { pushEnabled, dailyReminderTime } = state.notificationPrefs;
+
+  const [reminderTime, setReminderTime] = useState(dailyReminderTime);
   const [busy, setBusy] = useState(false);
+  const [savingTime, setSavingTime] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
 
   const supported = isPushSupported();
+  const timeDirty = reminderTime !== dailyReminderTime;
+
+  useEffect(() => {
+    setReminderTime(dailyReminderTime);
+  }, [dailyReminderTime]);
 
   const enable = async () => {
     setBusy(true);
@@ -46,6 +54,19 @@ export function NotificationSettings() {
       setMsg("Could not disable notifications.");
     } finally {
       setBusy(false);
+    }
+  };
+
+  const saveReminderTime = async () => {
+    setSavingTime(true);
+    setMsg(null);
+    try {
+      await updateNotificationPrefs({ dailyReminderTime: reminderTime });
+      setMsg("Reminder time saved ✓");
+    } catch {
+      setMsg("Could not save reminder time.");
+    } finally {
+      setSavingTime(false);
     }
   };
 
@@ -101,21 +122,26 @@ export function NotificationSettings() {
               <input
                 type="time"
                 className="input mt-1.5"
-                value={dailyReminderTime}
-                onChange={(e) =>
-                  updateNotificationPrefs({ dailyReminderTime: e.target.value })
-                }
+                value={reminderTime}
+                onChange={(e) => setReminderTime(e.target.value)}
               />
               <p className="mt-1.5 text-[11px] text-ink-subtle">
-                Uses your local timezone ({Intl.DateTimeFormat().resolvedOptions().timeZone}).
-                For exact timing after deploy, set CRON_TIMEZONE in server env.
+                Tap save after picking a time. Uses{" "}
+                {Intl.DateTimeFormat().resolvedOptions().timeZone} on the server
+                after deploy.
               </p>
+              <button
+                type="button"
+                onClick={saveReminderTime}
+                disabled={!timeDirty || savingTime}
+                className="btn-primary mt-3 w-full !py-2.5 disabled:opacity-50"
+              >
+                {savingTime ? "Saving…" : "Save reminder time"}
+              </button>
             </div>
           )}
 
-          {msg && (
-            <p className="mt-3 text-xs text-rose-700">{msg}</p>
-          )}
+          {msg && <p className="mt-3 text-xs text-rose-700">{msg}</p>}
         </>
       )}
     </section>
