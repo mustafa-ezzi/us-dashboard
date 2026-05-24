@@ -4,9 +4,12 @@ out
 dist
 .env
 .env.local
-# .env.local.example
 .env.*.local
 .DS_Store
 *.log
 .vercel
 .turbo
+tsconfig.tsbuildinfo
+
+# Never commit real secrets — use .env.local (gitignored) for actual values
+# .env.local.example is tracked with placeholders only

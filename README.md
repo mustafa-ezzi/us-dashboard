@@ -61,6 +61,22 @@ vercel
 
 Add **all** env vars from `.env.local.example` in the Vercel dashboard.
 
+**Security:** Only put real secrets in `.env.local` (gitignored). `.env.local.example` must use placeholders only — never commit private keys, service role, or cron secrets.
+
+---
+
+## If GitHub emailed you about exposed secrets
+
+Real keys were accidentally committed in an earlier version of `.env.local.example`. Do this:
+
+1. **Rotate Supabase service role** — Dashboard → Project Settings → API → regenerate `service_role` JWT → update `.env.local` and Vercel.
+2. **Use new VAPID keys** — already rotated in your local `.env.local`; update the same values in Vercel.
+3. **New `CRON_SECRET`** — update locally, on Vercel, and in cron-job.org.
+4. **Commit the fixed** `.env.local.example` (placeholders only) and push.
+5. Old keys may still exist in git history; treat them as compromised even after rotation.
+
+The VAPID **public** key (`NEXT_PUBLIC_VAPID_*`) is safe to expose in the browser — GitHub flags the **private** key and service role.
+
 ---
 
 ## PWA — install on phone
