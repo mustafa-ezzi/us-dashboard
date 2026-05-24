@@ -1,0 +1,84 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+  --rose: #E91E8C;
+  --rose-50: #FDF2F8;
+  --rose-100: #FCE4EC;
+  --ink: #2D2D2D;
+  --cream: #FFF9FB;
+}
+
+html,
+body {
+  background: var(--cream);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  /* Prevent horizontal scroll on mobile */
+  overflow-x: hidden;
+}
+
+/* Disable iOS tap highlight + double-tap zoom shenanigans */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button,
+[role="button"] {
+  touch-action: manipulation;
+}
+
+/* Subtle scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: #f3d4e1;
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #e9b4ca;
+}
+
+@layer components {
+  .card {
+    @apply rounded-2xl bg-white shadow-card border border-line/70;
+  }
+  .card-hover {
+    @apply transition-shadow hover:shadow-cardHover;
+  }
+  .stat-label {
+    @apply text-[11px] font-medium uppercase tracking-[0.08em] text-ink-muted;
+  }
+  .chip {
+    @apply inline-flex items-center gap-1 rounded-full bg-rose-100 text-rose-700 px-2.5 py-1 text-xs font-medium;
+  }
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-full bg-rose px-5 py-3 text-sm font-semibold text-white shadow-card transition active:scale-[0.98] hover:bg-rose-600 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 rounded-full border border-line bg-white px-4 py-2.5 text-sm font-medium text-ink transition active:scale-[0.98] hover:bg-rose-50;
+  }
+  .input {
+    @apply w-full rounded-xl border border-line bg-white px-4 py-3 text-[15px] text-ink placeholder:text-ink-subtle focus:outline-none focus:ring-2 focus:ring-rose/30 focus:border-rose/60;
+  }
+  .label {
+    @apply text-sm font-medium text-ink-soft;
+  }
+}
+
+/* Safe-area padding for iOS home indicator */
+.pb-safe {
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 0.5rem);
+}
+.pt-safe {
+  padding-top: calc(env(safe-area-inset-top, 0px) + 0.5rem);
+}
