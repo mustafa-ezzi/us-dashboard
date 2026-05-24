@@ -92,6 +92,25 @@ export async function notifyPartnerDatePlanned(input: {
   }
 }
 
+export async function notifyPartnerDateResponse(input: {
+  type: "date_accepted" | "date_rejected";
+  plannedDateId: string;
+  title: string;
+  dateISO: string;
+  time: string;
+  reason?: string;
+}): Promise<void> {
+  try {
+    await fetch("/api/push/notify-partner", {
+      method: "POST",
+      headers: await authHeaders(),
+      body: JSON.stringify(input),
+    });
+  } catch {
+    /* non-blocking */
+  }
+}
+
 function urlBase64ToUint8Array(base64String: string): BufferSource {
   const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
   const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");

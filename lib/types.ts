@@ -18,6 +18,8 @@ export interface NotificationPrefs {
   dailyReminderTime: string; // HH:MM (24h)
 }
 
+export type DatePlanStatus = "pending" | "accepted" | "rejected";
+
 export interface PlannedDate {
   id: string;
   title: string;
@@ -25,6 +27,10 @@ export interface PlannedDate {
   time: string; // HH:MM
   location: string;
   createdBy: PartnerKey;
+  status: DatePlanStatus;
+  responseReason?: string;
+  respondedBy?: PartnerKey;
+  respondedAtISO?: string;
   notes?: string;
   createdISO: string;
 }

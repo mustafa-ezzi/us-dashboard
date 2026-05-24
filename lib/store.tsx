@@ -12,9 +12,10 @@ import {
 } from "react";
 import type { Session, User } from "@supabase/supabase-js";
 import { getSupabase, hasSupabaseConfig } from "./supabase/client";
-import { notifyPartnerDatePlanned } from "./push/client";
+import { notifyPartnerDatePlanned, notifyPartnerDateResponse } from "./push/client";
 import {
   type AppState,
+  type DatePlanStatus,
   type MoodScore,
   type PartnerKey,
   type RuleStatus,
@@ -46,7 +47,28 @@ interface PlannedDateRow {
   location: string;
   created_by: PartnerKey;
   notes: string | null;
+  status: DatePlanStatus;
+  response_reason: string | null;
+  responded_by: PartnerKey | null;
+  responded_at: string | null;
   created_at: string;
+}
+
+function mapPlannedDateRow(d: PlannedDateRow) {
+  return {
+    id: d.id,
+    title: d.title,
+    dateISO: d.date_iso,
+    time: d.time,
+    location: d.location,
+    createdBy: d.created_by,
+    status: d.status ?? "pending",
+    responseReason: d.response_reason ?? undefined,
+    respondedBy: d.responded_by ?? undefined,
+    respondedAtISO: d.responded_at ?? undefined,
+    notes: d.notes ?? undefined,
+    createdISO: d.created_at,
+  };
 }
 interface MoodRow {
   id: string;
@@ -121,6 +143,11 @@ interface StoreValue {
     notes?: string;
   }) => Promise<void>;
   removePlannedDate: (id: string) => Promise<void>;
+  respondToPlannedDate: (
+    id: string,
+    response: "accepted" | "rejected",
+    reason?: string
+  ) => Promise<void>;
   // moods
   upsertTodayMood: (score: MoodScore, note?: string) => Promise<void>;
   // contract
@@ -312,16 +339,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       },
       notificationPrefs,
       plannedDates: ((plannedDatesRes.data ?? []) as PlannedDateRow[]).map(
-        (d) => ({
-          id: d.id,
-          title: d.title,
-          dateISO: d.date_iso,
-          time: d.time,
-          location: d.location,
-          createdBy: d.created_by,
-          notes: d.notes ?? undefined,
-          createdISO: d.created_at,
-        })
+        mapPlannedDateRow
       ),
       moods: ((moodsRes.data ?? []) as MoodRow[]).map((m) => ({
         id: m.id,
@@ -545,16 +563,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         ...s,
         plannedDates: [
           ...s.plannedDates,
-          {
-            id: data.id,
-            title: data.title,
-            dateISO: data.date_iso,
-            time: data.time,
-            location: data.location,
-            createdBy: data.created_by,
-            notes: data.notes ?? undefined,
-            createdISO: data.created_at,
-          },
+          mapPlannedDateRow(data),
         ].sort(
           (a, b) =>
             a.dateISO.localeCompare(b.dateISO) || a.time.localeCompare(b.time)
@@ -581,6 +590,55 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       }));
     },
     [supabaseRequired]
+  );
+
+  const respondToPlannedDate = useCallback<StoreValue["respondToPlannedDate"]>(
+    async (id, response, reason) => {
+      const sb = supabaseRequired();
+      const partnerKey = me();
+      const planned = state.plannedDates.find((d) => d.id === id);
+      if (!planned) return;
+      if (planned.createdBy === partnerKey) return;
+      if (planned.status !== "pending") return;
+      if (response === "rejected" && !reason?.trim()) {
+        throw new Error("Please give a reason for declining.");
+      }
+
+      const res = await sb
+        .from("planned_dates")
+        .update({
+          status: response,
+          response_reason:
+            response === "rejected" ? reason!.trim() : null,
+          responded_by: partnerKey,
+          responded_at: new Date().toISOString(),
+        })
+        .eq("id", id)
+        .select("*")
+        .single();
+      const data = res.data as PlannedDateRow | null;
+      if (res.error || !data) {
+        throw new Error(res.error?.message ?? "Could not update date plan.");
+      }
+
+      const updated = mapPlannedDateRow(data);
+      setState((s) => ({
+        ...s,
+        plannedDates: s.plannedDates.map((d) =>
+          d.id === id ? updated : d
+        ),
+      }));
+
+      void notifyPartnerDateResponse({
+        type: response === "accepted" ? "date_accepted" : "date_rejected",
+        plannedDateId: id,
+        title: planned.title,
+        dateISO: planned.dateISO,
+        time: planned.time,
+        reason: response === "rejected" ? reason!.trim() : undefined,
+      });
+    },
+    [supabaseRequired, partner, state.plannedDates]
   );
 
   const upsertTodayMood = useCallback<StoreValue["upsertTodayMood"]>(
@@ -833,6 +891,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       updateNotificationPrefs,
       addPlannedDate,
       removePlannedDate,
+      respondToPlannedDate,
       upsertTodayMood,
       addRule,
       setRuleStatus,
@@ -859,6 +918,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       updateNotificationPrefs,
       addPlannedDate,
       removePlannedDate,
+      respondToPlannedDate,
       upsertTodayMood,
       addRule,
       setRuleStatus,

@@ -58,6 +58,11 @@ create table if not exists public.planned_dates (
   location text not null,
   created_by partner_key not null,
   notes text,
+  status text not null default 'pending'
+    check (status in ('pending', 'accepted', 'rejected')),
+  response_reason text,
+  responded_by partner_key,
+  responded_at timestamptz,
   created_at timestamptz not null default now()
 );
 
