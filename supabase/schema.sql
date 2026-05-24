@@ -49,6 +49,12 @@ alter table public.couple_members
 alter table public.couple_members
   add column if not exists daily_reminder_time text not null default '20:00';
 
+alter table public.couple_members
+  add column if not exists reminder_timezone text not null default 'Asia/Karachi';
+
+alter table public.couple_members
+  add column if not exists last_reminder_date date;
+
 create table if not exists public.planned_dates (
   id uuid primary key default gen_random_uuid(),
   couple_id uuid not null references public.couples(id) on delete cascade,

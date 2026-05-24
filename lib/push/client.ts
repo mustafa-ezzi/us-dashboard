@@ -75,6 +75,17 @@ export async function unsubscribeFromPush(): Promise<void> {
   }
 }
 
+export async function sendTestPush(): Promise<void> {
+  const res = await fetch("/api/push/test", {
+    method: "POST",
+    headers: await authHeaders(),
+  });
+  const data = (await res.json()) as { error?: string };
+  if (!res.ok) {
+    throw new Error(data.error ?? "Test notification failed.");
+  }
+}
+
 export async function notifyPartnerDatePlanned(input: {
   title: string;
   dateISO: string;

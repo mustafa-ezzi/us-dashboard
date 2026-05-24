@@ -5,6 +5,7 @@ import { useStore } from "@/lib/store";
 import type { PartnerKey, RuleStatus } from "@/lib/types";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Modal } from "@/components/ui/Modal";
+import { useConfirmDialog } from "@/components/ui/useConfirmDialog";
 import { EmptyState } from "@/components/ui/EmptyState";
 import {
   CheckCircle2,
@@ -50,6 +51,7 @@ export function ContractScreen() {
 
   const [openRule, setOpenRule] = useState(false);
   const [openViolation, setOpenViolation] = useState<string | null>(null);
+  const { askConfirm, ConfirmDialog } = useConfirmDialog();
 
   const rulesByStatus = useMemo(() => {
     const groups: Record<RuleStatus, typeof state.rules> = {
@@ -142,12 +144,19 @@ export function ContractScreen() {
                             </div>
                             <button
                               onClick={async () => {
-                                if (
-                                  confirm(
-                                    `Delete "${r.title}"? Its violations will be removed too.`
-                                  )
-                                )
-                                  await removeRule(r.id);
+                                const ok = await askConfirm({
+                                  title: "Delete this rule?",
+                                  message: (
+                                    <>
+                                      <strong className="text-ink">{r.title}</strong>{" "}
+                                      and all of its violations will be removed. This
+                                      can&apos;t be undone.
+                                    </>
+                                  ),
+                                  confirmLabel: "Delete rule",
+                                  variant: "danger",
+                                });
+                                if (ok) await removeRule(r.id);
                               }}
                               className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-ink-subtle hover:bg-rose-50 hover:text-rose"
                               aria-label="Delete rule"
@@ -198,6 +207,7 @@ export function ContractScreen() {
                             <ViolationsList
                               ruleId={r.id}
                               onDelete={removeViolation}
+                              askConfirm={askConfirm}
                             />
                           )}
                         </li>
@@ -229,6 +239,8 @@ export function ContractScreen() {
           setOpenViolation(null);
         }}
       />
+
+      <ConfirmDialog />
     </div>
   );
 }
@@ -236,9 +248,11 @@ export function ContractScreen() {
 function ViolationsList({
   ruleId,
   onDelete,
+  askConfirm,
 }: {
   ruleId: string;
   onDelete: (id: string) => Promise<void>;
+  askConfirm: ReturnType<typeof useConfirmDialog>["askConfirm"];
 }) {
   const { state } = useStore();
   const list = state.violations.filter((v) => v.ruleId === ruleId).slice(0, 5);
@@ -269,7 +283,23 @@ function ViolationsList({
               </p>
             </div>
             <button
-              onClick={() => onDelete(v.id)}
+              onClick={async () => {
+                const ok = await askConfirm({
+                  title: "Remove this violation?",
+                  message: (
+                    <>
+                      This violation log for{" "}
+                      <strong className="text-ink">
+                        {who.emoji} {who.name}
+                      </strong>{" "}
+                      will be deleted.
+                    </>
+                  ),
+                  confirmLabel: "Remove",
+                  variant: "danger",
+                });
+                if (ok) await onDelete(v.id);
+              }}
               className="text-ink-subtle hover:text-rose"
               aria-label="Delete violation"
             >

@@ -16,6 +16,7 @@ export interface AppSettings {
 export interface NotificationPrefs {
   pushEnabled: boolean;
   dailyReminderTime: string; // HH:MM (24h)
+  reminderTimezone: string;
 }
 
 export type DatePlanStatus = "pending" | "accepted" | "rejected";

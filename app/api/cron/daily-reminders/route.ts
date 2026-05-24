@@ -1,40 +1,57 @@
+import {
+  currentDateInTimezone,
+  currentTimeInTimezone,
+  normalizeReminderTime,
+} from "@/lib/reminder-time";
 import { sendPushToMany } from "@/lib/push/server";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 
-/** Daily mood check-in reminders. Call via free cron (cron-job.org) every hour. */
+const DEFAULT_TZ = process.env.CRON_TIMEZONE || "Asia/Karachi";
+
+/** Daily mood check-in reminders. Must be called every minute (cron-job.org). */
 export async function GET(req: Request) {
   const secret = req.headers.get("authorization")?.replace("Bearer ", "");
   if (!secret || secret !== process.env.CRON_SECRET) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const tz = process.env.CRON_TIMEZONE || "Asia/Karachi";
   const now = new Date();
-
-  const parts = new Intl.DateTimeFormat("en-GB", {
-    timeZone: tz,
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  }).formatToParts(now);
-
-  const hour = parts.find((p) => p.type === "hour")?.value ?? "00";
-  const minute = parts.find((p) => p.type === "minute")?.value ?? "00";
-  const currentTime = `${hour}:${minute}`;
-
   const admin = getSupabaseAdmin();
 
   const { data: members } = await admin
     .from("couple_members")
-    .select("user_id, daily_reminder_time")
+    .select(
+      "user_id, daily_reminder_time, reminder_timezone, last_reminder_date"
+    )
     .eq("push_enabled", true);
 
-  const due = (members ?? []).filter(
-    (m) => m.daily_reminder_time?.slice(0, 5) === currentTime
-  );
+  const due: Array<{
+    user_id: string;
+    timezone: string;
+    today: string;
+  }> = [];
+
+  for (const member of members ?? []) {
+    const tz = member.reminder_timezone || DEFAULT_TZ;
+    const currentTime = currentTimeInTimezone(now, tz);
+    const today = currentDateInTimezone(now, tz);
+    const reminderTime = normalizeReminderTime(
+      member.daily_reminder_time ?? "20:00"
+    );
+
+    if (reminderTime !== currentTime) continue;
+    if (member.last_reminder_date === today) continue;
+
+    due.push({ user_id: member.user_id, timezone: tz, today });
+  }
 
   if (due.length === 0) {
-    return Response.json({ ok: true, sent: 0, message: "No reminders due" });
+    return Response.json({
+      ok: true,
+      sent: 0,
+      message: "No reminders due this minute",
+      checkedAt: now.toISOString(),
+    });
   }
 
   let totalSent = 0;
@@ -55,7 +72,14 @@ export async function GET(req: Request) {
       tag: "daily-reminder",
     });
 
-    totalSent += sent;
+    if (sent > 0) {
+      totalSent += sent;
+      await admin
+        .from("couple_members")
+        .update({ last_reminder_date: member.today })
+        .eq("user_id", member.user_id);
+    }
+
     allStale.push(...stale);
   }
 
@@ -67,7 +91,6 @@ export async function GET(req: Request) {
     ok: true,
     sent: totalSent,
     dueUsers: due.length,
-    time: currentTime,
-    timezone: tz,
+    checkedAt: now.toISOString(),
   });
 }

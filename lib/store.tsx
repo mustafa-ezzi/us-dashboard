@@ -21,6 +21,7 @@ import {
   type RuleStatus,
 } from "./types";
 import { todayKey } from "./utils";
+import { getDeviceTimezone } from "./reminder-time";
 
 // ---------- Row shapes (kept here so the store stays self-contained) ----------
 interface CoupleRow {
@@ -38,6 +39,7 @@ interface MemberRow {
   partner: PartnerKey;
   push_enabled: boolean;
   daily_reminder_time: string;
+  reminder_timezone: string;
 }
 interface PlannedDateRow {
   id: string;
@@ -182,6 +184,7 @@ const emptyState: AppState = {
   notificationPrefs: {
     pushEnabled: false,
     dailyReminderTime: "20:00",
+    reminderTimezone: "Asia/Karachi",
   },
   plannedDates: [],
   moods: [],
@@ -253,7 +256,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
     const memberRes = await supabase
       .from("couple_members")
-      .select("couple_id, partner, push_enabled, daily_reminder_time")
+      .select(
+        "couple_id, partner, push_enabled, daily_reminder_time, reminder_timezone"
+      )
       .eq("user_id", user.id)
       .maybeSingle();
 
@@ -269,6 +274,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     const notificationPrefs = {
       pushEnabled: member.push_enabled ?? false,
       dailyReminderTime: (member.daily_reminder_time ?? "20:00").slice(0, 5),
+      reminderTimezone: member.reminder_timezone ?? "Asia/Karachi",
     };
 
     const cid = member.couple_id;
@@ -516,9 +522,16 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   >(async (patch) => {
     const sb = supabaseRequired();
     const dbPatch: Record<string, unknown> = {};
-    if (patch.pushEnabled !== undefined) dbPatch.push_enabled = patch.pushEnabled;
-    if (patch.dailyReminderTime !== undefined)
+    if (patch.pushEnabled !== undefined) {
+      dbPatch.push_enabled = patch.pushEnabled;
+      if (patch.pushEnabled) {
+        dbPatch.reminder_timezone = getDeviceTimezone();
+      }
+    }
+    if (patch.dailyReminderTime !== undefined) {
       dbPatch.daily_reminder_time = patch.dailyReminderTime;
+      dbPatch.reminder_timezone = getDeviceTimezone();
+    }
 
     const { error } = await sb
       .from("couple_members")
@@ -536,6 +549,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         }),
         ...(patch.dailyReminderTime !== undefined && {
           dailyReminderTime: patch.dailyReminderTime,
+          reminderTimezone: getDeviceTimezone(),
         }),
       },
     }));

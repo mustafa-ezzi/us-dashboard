@@ -28,6 +28,7 @@ Run in Supabase **SQL Editor** (in order if upgrading an existing project):
 1. [`supabase/schema.sql`](./supabase/schema.sql) — full schema (new projects)
 2. [`supabase/migration-date-planner.sql`](./supabase/migration-date-planner.sql) — if you already ran the old schema
 3. [`supabase/migration-push.sql`](./supabase/migration-push.sql) — push subscriptions + notification prefs
+4. [`supabase/migration-reminder-timezone.sql`](./supabase/migration-reminder-timezone.sql) — per-user timezone for daily reminders
 
 ### 2. Auth users
 
@@ -103,18 +104,21 @@ The VAPID **public** key (`NEXT_PUBLIC_VAPID_*`) is safe to expose in the browse
 | Daily at your chosen time | "Take 30 seconds — log your mood" |
 | Partner plans a date | "Mustafa planned: Dinner — Fri, Jun 6 at 7:00 PM" |
 
-Date-planned pushes are **instant**. Daily reminders need a cron job.
+Date-planned pushes are **instant**. Daily reminders need a cron job that runs **every minute** (not hourly).
 
 ### Free daily cron (cron-job.org)
 
 1. Sign up at [cron-job.org](https://cron-job.org) (free)
 2. Create a job:
    - **URL:** `https://YOUR-APP.vercel.app/api/cron/daily-reminders`
-   - **Schedule:** Every hour at `:00`
+   - **Schedule:** **Every minute** (`* * * * *` or “Every 1 minute” in their UI)
    - **Request header:** `Authorization: Bearer YOUR_CRON_SECRET`
-3. Set `CRON_TIMEZONE=Asia/Karachi` in Vercel env (match where you live)
+3. Add the same `CRON_SECRET` and `CRON_TIMEZONE` (fallback) in Vercel env vars
+4. Run [`supabase/migration-reminder-timezone.sql`](./supabase/migration-reminder-timezone.sql) in Supabase
 
-The cron checks each user's reminder time and sends only when it matches.
+The cron checks each user's saved time **every minute** and sends once per day. Your timezone is saved when you tap **Save reminder time**.
+
+**Troubleshooting:** In Settings → **Send test notification**. If that works but daily reminders don't, the cron job is missing or not running every minute.
 
 ---
 

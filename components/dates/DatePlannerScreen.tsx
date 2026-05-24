@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { useStore } from "@/lib/store";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Modal } from "@/components/ui/Modal";
+import { useConfirmDialog } from "@/components/ui/useConfirmDialog";
 import { EmptyState } from "@/components/ui/EmptyState";
 import {
   CalendarHeart,
@@ -116,6 +117,7 @@ function DateSection({
   highlight?: boolean;
 }) {
   const { state, partner, respondToPlannedDate } = useStore();
+  const { askConfirm, ConfirmDialog } = useConfirmDialog();
 
   if (dates.length === 0) {
     return (
@@ -210,7 +212,18 @@ function DateSection({
                 </div>
                 <button
                   onClick={async () => {
-                    if (confirm(`Remove "${d.title}"?`)) await onDelete(d.id);
+                    const ok = await askConfirm({
+                      title: "Remove this date?",
+                      message: (
+                        <>
+                          <strong className="text-ink">{d.title}</strong> will be
+                          removed from your plans. This can&apos;t be undone.
+                        </>
+                      ),
+                      confirmLabel: "Remove",
+                      variant: "danger",
+                    });
+                    if (ok) await onDelete(d.id);
                   }}
                   className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-ink-subtle hover:bg-rose-50 hover:text-rose"
                   aria-label="Delete planned date"
@@ -222,6 +235,7 @@ function DateSection({
           );
         })}
       </ul>
+      <ConfirmDialog />
     </section>
   );
 }
