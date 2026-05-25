@@ -3,11 +3,7 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { Sparkles } from "lucide-react";
-import {
-  BIRTHDAY_NOTE,
-  markBirthdaySplashSeen,
-  shouldShowBirthdaySplash,
-} from "@/lib/birthday";
+import { BIRTHDAY_NOTE, isBirthdaySplashEnabled } from "@/lib/birthday";
 
 const CONFETTI = Array.from({ length: 28 }, (_, i) => ({
   id: i,
@@ -27,12 +23,11 @@ export function BirthdaySplash() {
 
   useEffect(() => {
     setMounted(true);
-    if (shouldShowBirthdaySplash()) setVisible(true);
+    if (isBirthdaySplashEnabled()) setVisible(true);
   }, []);
 
   const dismiss = () => {
     setLeaving(true);
-    markBirthdaySplashSeen();
     setTimeout(() => setVisible(false), 480);
   };
 

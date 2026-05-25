@@ -5,6 +5,7 @@ import { TopBar } from "./TopBar";
 import { BottomNav } from "./BottomNav";
 import { LoginScreen } from "./auth/LoginScreen";
 import { BirthdaySplash } from "./birthday/BirthdaySplash";
+import { isBirthdaySplashEnabled } from "@/lib/birthday";
 import { useStore } from "@/lib/store";
 import { Loader2, AlertTriangle } from "lucide-react";
 
@@ -31,7 +32,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <>
-      <BirthdaySplash />
+      {isBirthdaySplashEnabled() && <BirthdaySplash />}
       <div className="mx-auto flex min-h-screen w-full max-w-md flex-col bg-cream">
         <TopBar />
         <main className="flex-1 px-4 pb-28 pt-4">

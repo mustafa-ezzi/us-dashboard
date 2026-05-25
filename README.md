@@ -60,7 +60,9 @@ npm run dev
 vercel
 ```
 
-Add **all** env vars from `.env.local.example` in the Vercel dashboard.
+Add **all** env vars from `.env.local.example` in the Vercel dashboard, including `NEXT_PUBLIC_BIRTHDAY_SPLASH=true` so the birthday splash shows on every app open.
+
+**After her birthday:** set `NEXT_PUBLIC_BIRTHDAY_SPLASH=false` in Vercel (and locally), redeploy — splash is gone.
 
 **Security:** Only put real secrets in `.env.local` (gitignored). `.env.local.example` must use placeholders only — never commit private keys, service role, or cron secrets.
 
