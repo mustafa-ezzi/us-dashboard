@@ -24,8 +24,8 @@ export function LoginScreen() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-cream px-5">
       <div className="w-full max-w-sm">
-        <div className="mb-6 flex flex-col items-center text-center">
-          <span className="grid h-14 w-14 place-items-center rounded-3xl bg-rose text-white shadow-card">
+        <div className="mb-6 flex flex-col items-center text-center animate-slide-up">
+          <span className="grid h-14 w-14 place-items-center rounded-3xl bg-rose text-white shadow-card animate-float">
             <Heart size={24} fill="white" />
           </span>
           <h1 className="mt-4 text-2xl font-semibold tracking-tight text-ink">

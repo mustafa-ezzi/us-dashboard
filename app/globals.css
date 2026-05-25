@@ -82,3 +82,50 @@ button,
 .pt-safe {
   padding-top: calc(env(safe-area-inset-top, 0px) + 0.5rem);
 }
+
+/* Birthday splash */
+.birthday-splash-bg {
+  background:
+    radial-gradient(ellipse 80% 60% at 50% -10%, rgba(255, 255, 255, 0.25), transparent),
+    linear-gradient(160deg, #e91e8c 0%, #c8167a 45%, #7a0e48 100%);
+}
+
+.birthday-confetti-piece {
+  top: -12px;
+  animation-name: confetti-fall;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+@keyframes confetti-fall {
+  0% {
+    transform: translateY(-10vh) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(110vh) rotate(720deg);
+    opacity: 0.55;
+  }
+}
+
+/* Staggered list entrance */
+.stagger-children > * {
+  animation: fade-in 400ms ease-out both;
+}
+.stagger-children > *:nth-child(1) { animation-delay: 0ms; }
+.stagger-children > *:nth-child(2) { animation-delay: 60ms; }
+.stagger-children > *:nth-child(3) { animation-delay: 120ms; }
+.stagger-children > *:nth-child(4) { animation-delay: 180ms; }
+.stagger-children > *:nth-child(5) { animation-delay: 240ms; }
+.stagger-children > *:nth-child(6) { animation-delay: 300ms; }
+.stagger-children > *:nth-child(7) { animation-delay: 360ms; }
+.stagger-children > *:nth-child(8) { animation-delay: 420ms; }
+
+@keyframes fade-in {
+  0% { opacity: 0; transform: translateY(8px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+.card-interactive {
+  @apply transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow-cardHover active:scale-[0.99];
+}

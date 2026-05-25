@@ -4,6 +4,7 @@ import { type ReactNode } from "react";
 import { TopBar } from "./TopBar";
 import { BottomNav } from "./BottomNav";
 import { LoginScreen } from "./auth/LoginScreen";
+import { BirthdaySplash } from "./birthday/BirthdaySplash";
 import { useStore } from "@/lib/store";
 import { Loader2, AlertTriangle } from "lucide-react";
 
@@ -29,22 +30,27 @@ export function AppShell({ children }: { children: ReactNode }) {
   if (!partner) return <NotEnrolledScreen />;
 
   return (
-    <div className="mx-auto flex min-h-screen w-full max-w-md flex-col bg-cream">
-      <TopBar />
-      <main className="flex-1 px-4 pb-28 pt-4">
-        <div className="animate-fade-in">{children}</div>
-      </main>
-      <BottomNav />
-    </div>
+    <>
+      <BirthdaySplash />
+      <div className="mx-auto flex min-h-screen w-full max-w-md flex-col bg-cream">
+        <TopBar />
+        <main className="flex-1 px-4 pb-28 pt-4">
+          <div className="animate-slide-up">{children}</div>
+        </main>
+        <BottomNav />
+      </div>
+    </>
   );
 }
 
 function FullScreenLoader() {
   return (
     <div className="grid min-h-screen place-items-center bg-cream text-ink-muted">
-      <div className="flex flex-col items-center gap-2">
-        <Loader2 size={20} className="animate-spin text-rose" />
-        <span className="text-sm">Loading…</span>
+      <div className="flex flex-col items-center gap-3 animate-fade-in">
+        <span className="grid h-12 w-12 place-items-center rounded-2xl bg-rose text-white shadow-card animate-float">
+          <Loader2 size={22} className="animate-spin" />
+        </span>
+        <span className="text-sm animate-pulse-soft">Loading…</span>
       </div>
     </div>
   );

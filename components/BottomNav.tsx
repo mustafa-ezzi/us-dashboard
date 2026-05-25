@@ -27,7 +27,7 @@ export function BottomNav() {
                 <Link
                   href={href}
                   className={cn(
-                    "flex flex-col items-center gap-1 rounded-2xl py-2 text-[11px] font-medium transition",
+                    "flex flex-col items-center gap-1 rounded-2xl py-2 text-[11px] font-medium transition-all duration-200 active:scale-95",
                     active
                       ? "text-rose"
                       : "text-ink-muted hover:text-ink-soft"
@@ -36,8 +36,8 @@ export function BottomNav() {
                 >
                   <span
                     className={cn(
-                      "grid h-9 w-9 place-items-center rounded-2xl transition",
-                      active ? "bg-rose-100" : "bg-transparent"
+                      "grid h-9 w-9 place-items-center rounded-2xl transition-all duration-200",
+                      active ? "bg-rose-100 scale-105" : "bg-transparent"
                     )}
                   >
                     <Icon size={20} strokeWidth={active ? 2.4 : 2} />

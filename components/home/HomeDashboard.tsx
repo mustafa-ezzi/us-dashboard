@@ -14,7 +14,7 @@ export function HomeDashboard() {
   const { her, him } = state.settings;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 stagger-children">
       <DaysTogetherCard />
 
       <EngagementTimerCard />

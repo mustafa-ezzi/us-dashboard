@@ -62,10 +62,53 @@ const config: Config = {
           "0%": { opacity: "0", transform: "scale(0.96)" },
           "100%": { opacity: "1", transform: "scale(1)" },
         },
+        "slide-up": {
+          "0%": { opacity: "0", transform: "translateY(16px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
+        },
+        "float": {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-6px)" },
+        },
+        "pulse-soft": {
+          "0%, 100%": { opacity: "1" },
+          "50%": { opacity: "0.85" },
+        },
+        "splash-in": {
+          "0%": { opacity: "0" },
+          "100%": { opacity: "1" },
+        },
+        "splash-out": {
+          "0%": { opacity: "1", transform: "scale(1)" },
+          "100%": { opacity: "0", transform: "scale(1.02)" },
+        },
+        "birthday-rise": {
+          "0%": { opacity: "0", transform: "translateY(20px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
+        },
+        "confetti-fall": {
+          "0%": { transform: "translateY(-10vh) rotate(0deg)", opacity: "1" },
+          "100%": {
+            transform: "translateY(110vh) rotate(720deg)",
+            opacity: "0.6",
+          },
+        },
+        "shimmer": {
+          "0%": { backgroundPosition: "200% center" },
+          "100%": { backgroundPosition: "-200% center" },
+        },
       },
       animation: {
         "fade-in": "fade-in 240ms ease-out both",
         "pop-in": "pop-in 200ms ease-out both",
+        "slide-up": "slide-up 400ms ease-out both",
+        "float": "float 3s ease-in-out infinite",
+        "pulse-soft": "pulse-soft 2.5s ease-in-out infinite",
+        "splash-in": "splash-in 500ms ease-out both",
+        "splash-out": "splash-out 480ms ease-in forwards",
+        "birthday-rise": "birthday-rise 600ms ease-out both",
+        "confetti-fall": "confetti-fall linear infinite",
+        "shimmer": "shimmer 3s linear infinite",
       },
     },
   },
