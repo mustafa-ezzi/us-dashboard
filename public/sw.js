@@ -1,11 +1,21 @@
 /* Us Dashboard service worker — caching shell + push notifications */
 
-const CACHE = "us-dashboard-v1";
+const CACHE = "us-dashboard-v2";
 const SHELL = ["/", "/dates", "/mood", "/contract", "/settings"];
+const NOTIFICATION_ICON = "/icons/notification-icon.png";
+const NOTIFICATION_BADGE = "/icons/notification-badge.png";
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(CACHE).then((cache) => cache.addAll(SHELL).catch(() => {}))
+    caches.open(CACHE).then((cache) =>
+      cache
+        .addAll([
+          ...SHELL,
+          NOTIFICATION_ICON,
+          NOTIFICATION_BADGE,
+        ])
+        .catch(() => {})
+    )
   );
   self.skipWaiting();
 });
@@ -49,8 +59,8 @@ self.addEventListener("push", (event) => {
   event.waitUntil(
     self.registration.showNotification(payload.title, {
       body: payload.body,
-      icon: "/icon",
-      badge: "/icon",
+      icon: new URL(NOTIFICATION_ICON, self.location.origin).href,
+      badge: new URL(NOTIFICATION_BADGE, self.location.origin).href,
       tag: payload.tag || "us-dashboard",
       data: { url: payload.url || "/" },
       vibrate: [100, 50, 100],
