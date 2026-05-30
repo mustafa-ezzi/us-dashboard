@@ -52,7 +52,7 @@ export function DatePlannerScreen() {
     <div>
       <PageHeader
         title="Date Planner"
-        subtitle="What's next for the two of you."
+        subtitle="What's next for us."
         action={
           <button
             onClick={() => setOpen(true)}

@@ -231,8 +231,7 @@ export function SettingsScreen() {
       </section>
 
       <p className="pt-2 text-center text-xs text-ink-subtle">
-        Made with <Heart size={11} className="inline text-rose" /> for the two
-        of you.
+        Made with <Heart size={11} className="inline text-rose" /> for My Girl.
       </p>
     </div>
   );

@@ -86,6 +86,55 @@ export interface KindAct {
   createdISO: string;
 }
 
+export type EngagementLevel = "low" | "medium" | "high";
+
+export interface WeeklyHealthScore {
+  id: string;
+  weekStartISO: string; // YYYY-MM-DD
+  overallScore: number; // 0-100
+  moodAvgScore: number; // 1-5
+  moodSyncPercentage: number; // 0-100
+  kindActsCount: number;
+  violationsCount: number;
+  checkInStreakDays: number;
+  completedTasksCount?: number;
+  engagementLevel: EngagementLevel;
+  notes?: string;
+  computedISO: string;
+}
+
+export interface ReportMetrics {
+  averageHealthScore: number;
+  moodTrend: "improving" | "stable" | "declining";
+  totalKindActs: number;
+  totalViolations: number;
+  checkInDaysCount: number;
+  completedTasksCount: number;
+}
+
+export type ReportType = "weekly" | "monthly" | "yearly";
+
+export interface Report {
+  id: string;
+  reportType: ReportType;
+  periodStartISO: string;
+  periodEndISO: string;
+  title?: string;
+  summary?: string;
+  keyMetrics: ReportMetrics;
+  highlights: string[];
+  insights?: string;
+  healthScoresAvg?: number;
+  createdISO: string;
+}
+
+export interface YearlyReportArchive {
+  id: string;
+  year: number;
+  fullReport: Report;
+  createdISO: string;
+}
+
 export interface AppState {
   settings: AppSettings;
   notificationPrefs: NotificationPrefs;
@@ -96,4 +145,6 @@ export interface AppState {
   apologies: ApologyEntry[];
   immaturity: ImmaturityEntry[];
   kindActs: KindAct[];
+  weeklyHealthScores: WeeklyHealthScore[];
+  reports: Report[];
 }

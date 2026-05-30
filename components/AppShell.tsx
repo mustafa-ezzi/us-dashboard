@@ -1,6 +1,7 @@
 "use client";
 
 import { type ReactNode } from "react";
+import Image from "next/image";
 import { TopBar } from "./TopBar";
 import { BottomNav } from "./BottomNav";
 import { LoginScreen } from "./auth/LoginScreen";
@@ -48,9 +49,18 @@ function FullScreenLoader() {
   return (
     <div className="grid min-h-screen place-items-center bg-cream text-ink-muted">
       <div className="flex flex-col items-center gap-3 animate-fade-in">
-        <span className="grid h-12 w-12 place-items-center rounded-2xl bg-rose text-white shadow-card animate-float">
-          <Loader2 size={22} className="animate-spin" />
-        </span>
+        <div className="relative h-12 w-12 rounded-2xl bg-white shadow-card animate-float overflow-hidden">
+          <Image
+            src="/logo.png"
+            alt="Loading"
+            width={48}
+            height={48}
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 grid place-items-center">
+            <Loader2 size={22} className="animate-spin text-white drop-shadow-lg" />
+          </div>
+        </div>
         <span className="text-sm animate-pulse-soft">Loading…</span>
       </div>
     </div>
@@ -70,7 +80,7 @@ function ConfigMissingScreen() {
           and restart the dev server:
         </p>
         <pre className="mt-3 overflow-auto rounded-lg bg-rose-50 p-3 text-xs text-rose-700">
-{`NEXT_PUBLIC_SUPABASE_URL=https://twdimkclschgxhxmwaff.supabase.co
+          {`NEXT_PUBLIC_SUPABASE_URL=https://twdimkclschgxhxmwaff.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=<paste your anon key>`}
         </pre>
         <p className="mt-3 text-ink-muted">

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { Settings as SettingsIcon } from "lucide-react";
 import { useStore } from "@/lib/store";
 import { usePathname } from "next/navigation";
@@ -11,6 +12,7 @@ const titles: Record<string, string> = {
   "/mood": "Mood",
   "/contract": "Contract",
   "/settings": "Settings",
+  "/reports": "Reports",
 };
 
 export function TopBar() {
@@ -22,12 +24,15 @@ export function TopBar() {
     <header className="sticky top-0 z-20 border-b border-line/70 bg-cream/85 backdrop-blur-md">
       <div className="flex items-center justify-between px-4 pt-safe pb-3">
         <div className="flex items-center gap-2">
-          <span
-            aria-hidden
-            className="grid h-9 w-9 place-items-center rounded-2xl bg-rose text-white text-base font-bold shadow-card"
-          >
-            U
-          </span>
+          <div className="grid h-9 w-9 place-items-center rounded-2xl bg-white shadow-card overflow-hidden">
+            <Image
+              src="/logo.png"
+              alt="Us Dashboard"
+              width={36}
+              height={36}
+              className="w-full h-full object-cover"
+            />
+          </div>
           <div className="leading-tight">
             <p className="text-[11px] font-medium uppercase tracking-[0.12em] text-ink-muted">
               {state.settings.her.name} & {state.settings.him.name}
