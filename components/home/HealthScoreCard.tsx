@@ -49,7 +49,7 @@ export function HealthScoreCard({ loading = false, error }: HealthScoreCardProps
                     engagementLevel: data.engagement_level,
                     computedISO: data.computed_at,
                 });
-                setErrorMsg(null);
+                setErrorMsg(undefined);
             } catch (err) {
                 console.error("Error fetching health score:", err);
                 setErrorMsg("Unable to load health score");

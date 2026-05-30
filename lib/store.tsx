@@ -193,6 +193,8 @@ const emptyState: AppState = {
   apologies: [],
   immaturity: [],
   kindActs: [],
+  weeklyHealthScores: [],
+  reports: [],
 };
 
 const StoreContext = createContext<StoreValue | null>(null);
@@ -387,6 +389,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         text: k.text,
         createdISO: k.created_at,
       })),
+      weeklyHealthScores: [],
+      reports: [],
     });
 
     setReady(true);
