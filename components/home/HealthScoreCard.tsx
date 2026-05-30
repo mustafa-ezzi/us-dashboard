@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState } from "react";
 import { WeeklyHealthScore } from "@/lib/types";
-import { useSupabaseClient } from "@supabase/auth-helpers-react";
 
 const engagementColors = {
     high: "from-green-400 to-emerald-600",
@@ -22,7 +21,6 @@ interface HealthScoreCardProps {
 }
 
 export function HealthScoreCard({ loading = false, error }: HealthScoreCardProps) {
-    const supabase = useSupabaseClient();
     const [healthScore, setHealthScore] = useState<WeeklyHealthScore | null>(null);
     const [isLoading, setIsLoading] = useState(loading);
     const [errorMsg, setErrorMsg] = useState(error);
@@ -145,7 +143,6 @@ interface HealthScoreHistoryProps {
 }
 
 export function HealthScoreHistory({ limit = 12 }: HealthScoreHistoryProps) {
-    const supabase = useSupabaseClient();
     const [scores, setScores] = useState<WeeklyHealthScore[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
