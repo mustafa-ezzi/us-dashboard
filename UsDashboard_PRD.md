@@ -144,7 +144,7 @@ Your relationship has its own language. A private dictionary of inside jokes, ni
 | Search & Browse | Find entries by keyword or browse alphabetically. | Medium | Phase 2 |
 | Reaction Count | Both partners can "react" to entries over time. | Low | Phase 3 |
 
----
+--- 
 
 ### MODULE 07 — Notification & Reminder System
 
