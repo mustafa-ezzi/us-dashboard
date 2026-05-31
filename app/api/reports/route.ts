@@ -8,10 +8,34 @@ const supabase = createClient(
     process.env.SUPABASE_SERVICE_ROLE_KEY || ""
 );
 
+type ApiError = {
+    code?: string;
+    message?: string;
+    details?: string;
+};
+
+function isMissingRelation(error: ApiError | null | undefined) {
+    return (
+        error?.code === "42P01" ||
+        error?.code === "PGRST205" ||
+        error?.message?.toLowerCase().includes("could not find the table")
+    );
+}
+
+function missingReportsSchemaResponse() {
+    return NextResponse.json(
+        {
+            error:
+                "Reports database tables are missing. Run supabase/migration-health-score-and-reports.sql in Supabase.",
+        },
+        { status: 500 }
+    );
+}
+
 export async function GET(req: NextRequest) {
     try {
         const authHeader = req.headers.get("authorization");
-        if (!authHeader) {
+        if (!authHeader?.startsWith("Bearer ")) {
             return NextResponse.json(
                 { error: "Unauthorized" },
                 { status: 401 }
@@ -30,13 +54,13 @@ export async function GET(req: NextRequest) {
             );
         }
 
-        const { data: member } = await supabase
+        const { data: member, error: memberError } = await supabase
             .from("couple_members")
             .select("couple_id")
             .eq("user_id", user.id)
             .single();
 
-        if (!member) {
+        if (memberError || !member) {
             return NextResponse.json(
                 { error: "Couple not found" },
                 { status: 404 }
@@ -57,6 +81,8 @@ export async function GET(req: NextRequest) {
 
         if (error) {
             console.error("Error fetching reports:", error);
+            if (isMissingRelation(error)) return missingReportsSchemaResponse();
+
             return NextResponse.json(
                 { error: "Failed to fetch reports" },
                 { status: 500 }
@@ -76,7 +102,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
     try {
         const authHeader = req.headers.get("authorization");
-        if (!authHeader) {
+        if (!authHeader?.startsWith("Bearer ")) {
             return NextResponse.json(
                 { error: "Unauthorized" },
                 { status: 401 }
@@ -95,13 +121,13 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        const { data: member } = await supabase
+        const { data: member, error: memberError } = await supabase
             .from("couple_members")
             .select("couple_id")
             .eq("user_id", user.id)
             .single();
 
-        if (!member) {
+        if (memberError || !member) {
             return NextResponse.json(
                 { error: "Couple not found" },
                 { status: 404 }
@@ -124,7 +150,10 @@ export async function POST(req: NextRequest) {
                 .gte("week_start_date", dateRange.startISO)
                 .lte("week_start_date", dateRange.endISO)
                 .then((res) => {
-                    if (res.error) throw res.error;
+                    if (res.error) {
+                        if (isMissingRelation(res.error)) return [];
+                        throw res.error;
+                    }
                     return (res.data || []).map((row: any) => ({
                         id: row.id,
                         weekStartISO: row.week_start_date,
@@ -222,6 +251,8 @@ export async function POST(req: NextRequest) {
 
         if (insertError) {
             console.error("Error inserting report:", insertError);
+            if (isMissingRelation(insertError)) return missingReportsSchemaResponse();
+
             return NextResponse.json(
                 { error: "Failed to generate report" },
                 { status: 500 }
