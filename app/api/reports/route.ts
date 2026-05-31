@@ -32,6 +32,12 @@ function missingReportsSchemaResponse() {
     );
 }
 
+function addDaysISO(dateISO: string, days: number) {
+    const date = new Date(`${dateISO}T00:00:00.000Z`);
+    date.setUTCDate(date.getUTCDate() + days);
+    return date.toISOString();
+}
+
 export async function GET(req: NextRequest) {
     try {
         const authHeader = req.headers.get("authorization");
@@ -140,6 +146,7 @@ export async function POST(req: NextRequest) {
 
         // Get date range for report
         const dateRange = getReportDateRange(reportType);
+        const periodEndExclusiveISO = addDaysISO(dateRange.endISO, 1);
 
         // Fetch all data needed
         const [healthScores, moods, kindActs, violations] = await Promise.all([
@@ -190,7 +197,7 @@ export async function POST(req: NextRequest) {
                 .select("*")
                 .eq("couple_id", coupleId)
                 .gte("created_at", dateRange.startISO)
-                .lte("created_at", dateRange.endISO)
+                .lt("created_at", periodEndExclusiveISO)
                 .then((res) => {
                     if (res.error) throw res.error;
                     return (res.data || []).map((k: any) => ({
@@ -205,7 +212,7 @@ export async function POST(req: NextRequest) {
                 .select("*")
                 .eq("couple_id", coupleId)
                 .gte("created_at", dateRange.startISO)
-                .lte("created_at", dateRange.endISO)
+                .lt("created_at", periodEndExclusiveISO)
                 .then((res) => {
                     if (res.error) throw res.error;
                     return (res.data || []).map((v: any) => ({
@@ -232,7 +239,7 @@ export async function POST(req: NextRequest) {
         // Save to database
         const { data: inserted, error: insertError } = await supabase
             .from("reports")
-            .insert([
+            .upsert(
                 {
                     couple_id: coupleId,
                     report_type: reportType,
@@ -244,8 +251,10 @@ export async function POST(req: NextRequest) {
                     highlights: reportData.highlights,
                     insights: reportData.insights,
                     health_scores_avg: reportData.healthScoresAvg,
+                    created_at: new Date().toISOString(),
                 },
-            ])
+                { onConflict: "couple_id,report_type,period_start_date" }
+            )
             .select()
             .single();
 

@@ -80,8 +80,7 @@ export function ReportsScreen() {
             }
 
             const newReport = await response.json();
-            setReports([
-                {
+            const mappedReport = {
                     id: newReport.id,
                     reportType: newReport.report_type,
                     periodStartISO: newReport.period_start_date,
@@ -93,8 +92,17 @@ export function ReportsScreen() {
                     insights: newReport.insights,
                     healthScoresAvg: newReport.health_scores_avg,
                     createdISO: newReport.created_at,
-                },
-                ...reports,
+            };
+
+            setReports((currentReports) => [
+                mappedReport,
+                ...currentReports.filter(
+                    (report) =>
+                        !(
+                            report.reportType === mappedReport.reportType &&
+                            report.periodStartISO === mappedReport.periodStartISO
+                        )
+                ),
             ]);
         } catch (err) {
             console.error("Error generating report:", err);

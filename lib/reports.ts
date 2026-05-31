@@ -28,6 +28,8 @@ function generateMetrics(options: ReportGenerationOptions): ReportMetrics {
 
     const periodStart = new Date(options.periodStartISO);
     const periodEnd = new Date(options.periodEndISO);
+    const periodEndExclusive = new Date(periodEnd);
+    periodEndExclusive.setDate(periodEndExclusive.getDate() + 1);
 
     // Filter data for period
     const periodMoods = moods.filter((m) => {
@@ -37,12 +39,12 @@ function generateMetrics(options: ReportGenerationOptions): ReportMetrics {
 
     const periodKindActs = kindActs.filter((k) => {
         const date = new Date(k.createdISO);
-        return date >= periodStart && date <= periodEnd;
+        return date >= periodStart && date < periodEndExclusive;
     });
 
     const periodViolations = violations.filter((v) => {
         const date = new Date(v.createdISO);
-        return date >= periodStart && date <= periodEnd;
+        return date >= periodStart && date < periodEndExclusive;
     });
 
     // Calculate metrics

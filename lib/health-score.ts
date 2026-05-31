@@ -20,6 +20,8 @@ export function calculateWeeklyHealthScore(
     const weekStart = new Date(weekStartISO);
     const weekEnd = new Date(weekStart);
     weekEnd.setDate(weekEnd.getDate() + 6);
+    const weekEndExclusive = new Date(weekEnd);
+    weekEndExclusive.setDate(weekEndExclusive.getDate() + 1);
 
     // Filter data for the week
     const weekMoods = moods.filter((m) => {
@@ -29,12 +31,12 @@ export function calculateWeeklyHealthScore(
 
     const weekKindActs = kindActs.filter((k) => {
         const date = new Date(k.createdISO);
-        return date >= weekStart && date <= weekEnd;
+        return date >= weekStart && date < weekEndExclusive;
     });
 
     const weekViolations = violations.filter((v) => {
         const date = new Date(v.createdISO);
-        return date >= weekStart && date <= weekEnd;
+        return date >= weekStart && date < weekEndExclusive;
     });
 
     // 1. Mood average & sync
