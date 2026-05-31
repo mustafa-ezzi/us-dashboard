@@ -3,8 +3,20 @@
 import React, { useEffect, useState } from "react";
 import { Report, ReportType } from "@/lib/types";
 import { PageHeader } from "@/components/ui/PageHeader";
+import { getSupabase } from "@/lib/supabase/client";
 
 type TabType = "weekly" | "monthly" | "yearly";
+
+async function authHeaders(): Promise<HeadersInit> {
+    const { data } = await getSupabase().auth.getSession();
+    const token = data.session?.access_token;
+    if (!token) throw new Error("Not signed in");
+
+    return {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+    };
+}
 
 export function ReportsScreen() {
     const [reports, setReports] = useState<Report[]>([]);
@@ -16,10 +28,13 @@ export function ReportsScreen() {
         const fetchReports = async () => {
             try {
                 setIsLoading(true);
-                const response = await fetch(`/api/reports?type=${activeTab}`);
+                const response = await fetch(`/api/reports?type=${activeTab}`, {
+                    headers: await authHeaders(),
+                });
 
                 if (!response.ok) {
-                    throw new Error("Failed to fetch reports");
+                    const data = await response.json().catch(() => null);
+                    throw new Error(data?.error ?? "Failed to fetch reports");
                 }
 
                 const data = await response.json();
@@ -55,14 +70,13 @@ export function ReportsScreen() {
             setIsLoading(true);
             const response = await fetch("/api/reports", {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
+                headers: await authHeaders(),
                 body: JSON.stringify({ reportType: activeTab }),
             });
 
             if (!response.ok) {
-                throw new Error("Failed to generate report");
+                const data = await response.json().catch(() => null);
+                throw new Error(data?.error ?? "Failed to generate report");
             }
 
             const newReport = await response.json();
