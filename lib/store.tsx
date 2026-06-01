@@ -424,6 +424,98 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     };
   }, [authStatus]);
 
+  useEffect(() => {
+    if (authStatus !== "signed-in" || !coupleId) return;
+
+    const sb = getSupabase();
+    let timer: ReturnType<typeof setTimeout> | null = null;
+    const refreshSoon = () => {
+      if (timer) clearTimeout(timer);
+      timer = setTimeout(() => {
+        fetchAllRef.current({ silent: true });
+      }, 350);
+    };
+
+    const channel = sb
+      .channel(`couple-updates-${coupleId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "planned_dates",
+          filter: `couple_id=eq.${coupleId}`,
+        },
+        refreshSoon
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "moods",
+          filter: `couple_id=eq.${coupleId}`,
+        },
+        refreshSoon
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "rules",
+          filter: `couple_id=eq.${coupleId}`,
+        },
+        refreshSoon
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "violations",
+          filter: `couple_id=eq.${coupleId}`,
+        },
+        refreshSoon
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "apologies",
+          filter: `couple_id=eq.${coupleId}`,
+        },
+        refreshSoon
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "immaturity",
+          filter: `couple_id=eq.${coupleId}`,
+        },
+        refreshSoon
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "kind_acts",
+          filter: `couple_id=eq.${coupleId}`,
+        },
+        refreshSoon
+      )
+      .subscribe();
+
+    return () => {
+      if (timer) clearTimeout(timer);
+      void sb.removeChannel(channel);
+    };
+  }, [authStatus, coupleId]);
+
   // ---------- Mutations ----------
   const supabaseRequired = useCallback(() => {
     if (!coupleId) throw new Error("Not signed in to a couple yet.");
