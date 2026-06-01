@@ -1,13 +1,15 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useStore } from "@/lib/store";
 import { todayKey } from "@/lib/utils";
 import { PageHeader } from "@/components/ui/PageHeader";
+import { Modal } from "@/components/ui/Modal";
 import { MOOD_META } from "./moodMeta";
 import type { MoodScore, PartnerKey } from "@/lib/types";
 import { format, subDays } from "date-fns";
 import { MoodChart } from "./MoodChart";
+import { Clock3, Eye } from "lucide-react";
 
 export function MoodScreen() {
   const { state, partner, upsertTodayMood } = useStore();
@@ -63,6 +65,7 @@ export function MoodScreen() {
         emoji={state.settings.her.emoji}
         currentScore={today.her?.score}
         currentNote={today.her?.note}
+        currentCreatedISO={today.her?.createdISO}
         onSave={(score, note) => upsertTodayMood(score, note)}
       />
       <PartnerCard
@@ -72,6 +75,7 @@ export function MoodScreen() {
         emoji={state.settings.him.emoji}
         currentScore={today.him?.score}
         currentNote={today.him?.note}
+        currentCreatedISO={today.him?.createdISO}
         onSave={(score, note) => upsertTodayMood(score, note)}
       />
 
@@ -87,6 +91,58 @@ export function MoodScreen() {
   );
 }
 
+function MoodNoteModal({
+  open,
+  onClose,
+  name,
+  emoji,
+  note,
+  loggedAt,
+}: {
+  open: boolean;
+  onClose: () => void;
+  name: string;
+  emoji: string;
+  note?: string;
+  loggedAt?: string;
+}) {
+  return (
+    <Modal open={open} onClose={onClose} title="Mood note">
+      <div className="space-y-3">
+        <div>
+          <p className="text-sm font-semibold text-ink">
+            <span className="mr-1.5">{emoji}</span>
+            {name}
+          </p>
+          {loggedAt && (
+            <p className="mt-1 inline-flex items-center gap-1 text-xs text-ink-muted">
+              <Clock3 size={13} />
+              Logged {loggedAt}
+            </p>
+          )}
+        </div>
+        <p className="whitespace-pre-wrap break-words text-sm leading-6 text-ink-soft">
+          {note || "No note added."}
+        </p>
+      </div>
+    </Modal>
+  );
+}
+
+function formatLoggedAt(
+  iso: string | undefined,
+  variant: "short" | "long"
+) {
+  if (!iso) return undefined;
+  const loggedAt = new Date(iso);
+  if (Number.isNaN(loggedAt.getTime())) return undefined;
+
+  return format(
+    loggedAt,
+    variant === "short" ? "h:mm a" : "MMM d, yyyy 'at' h:mm a"
+  );
+}
+
 function PartnerCard({
   who,
   currentUser,
@@ -94,6 +150,7 @@ function PartnerCard({
   emoji,
   currentScore,
   currentNote,
+  currentCreatedISO,
   onSave,
 }: {
   who: PartnerKey;
@@ -102,13 +159,22 @@ function PartnerCard({
   emoji: string;
   currentScore?: MoodScore;
   currentNote?: string;
+  currentCreatedISO?: string;
   onSave: (score: MoodScore, note?: string) => Promise<void>;
 }) {
   const isMe = currentUser === who;
   const [score, setScore] = useState<MoodScore | undefined>(currentScore);
   const [note, setNote] = useState(currentNote ?? "");
+  const [noteOpen, setNoteOpen] = useState(false);
   const [saved, setSaved] = useState(false);
   const [busy, setBusy] = useState(false);
+  const loggedLabel = formatLoggedAt(currentCreatedISO, "short");
+  const loggedFull = formatLoggedAt(currentCreatedISO, "long");
+
+  useEffect(() => {
+    setScore(currentScore);
+    setNote(currentNote ?? "");
+  }, [currentScore, currentNote]);
 
   // Read-only view of the other partner's mood
   if (!isMe) {
@@ -123,7 +189,11 @@ function PartnerCard({
             {name}
           </p>
           <span className="text-[11px] font-medium text-ink-muted">
-            {currentScore ? "Today" : "Not logged yet"}
+            {currentScore && loggedLabel
+              ? `Logged ${loggedLabel}`
+              : currentScore
+                ? "Today"
+                : "Not logged yet"}
           </span>
         </div>
         <div className="flex items-center gap-3 rounded-2xl bg-rose-50/60 p-4">
@@ -135,10 +205,30 @@ function PartnerCard({
               {meta?.label ?? "—"}
             </p>
             {currentNote && (
-              <p className="truncate text-sm text-ink-muted">"{currentNote}"</p>
+              <div className="mt-1 space-y-2">
+                <p className="line-clamp-2 whitespace-pre-wrap break-words text-sm leading-5 text-ink-muted">
+                  "{currentNote}"
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setNoteOpen(true)}
+                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-rose-700"
+                >
+                  <Eye size={14} />
+                  Read full note
+                </button>
+              </div>
             )}
           </div>
         </div>
+        <MoodNoteModal
+          open={noteOpen}
+          onClose={() => setNoteOpen(false)}
+          name={name}
+          emoji={emoji}
+          note={currentNote}
+          loggedAt={loggedFull}
+        />
       </section>
     );
   }
@@ -151,8 +241,9 @@ function PartnerCard({
           {name} <span className="text-ink-subtle font-normal">· you</span>
         </p>
         {currentScore && (
-          <span className="text-[11px] font-medium text-ink-muted">
-            Logged today
+          <span className="inline-flex items-center gap-1 text-[11px] font-medium text-ink-muted">
+            <Clock3 size={12} />
+            {loggedLabel ? `Logged ${loggedLabel}` : "Logged today"}
           </span>
         )}
       </div>
@@ -189,17 +280,28 @@ function PartnerCard({
         })}
       </div>
 
-      <input
-        type="text"
+      <textarea
         className="input mt-3"
-        placeholder="One-line note (optional)"
+        placeholder="Note (optional)"
         value={note}
         onChange={(e) => {
           setNote(e.target.value);
           setSaved(false);
         }}
-        maxLength={140}
+        maxLength={1000}
+        rows={3}
       />
+
+      {currentNote && (
+        <button
+          type="button"
+          onClick={() => setNoteOpen(true)}
+          className="mt-2 inline-flex items-center gap-1.5 text-xs font-semibold text-rose-700"
+        >
+          <Eye size={14} />
+          Read saved note
+        </button>
+      )}
 
       <button
         className="btn-primary mt-3 w-full"
@@ -223,6 +325,14 @@ function PartnerCard({
               ? "Update"
               : "Log mood"}
       </button>
+      <MoodNoteModal
+        open={noteOpen}
+        onClose={() => setNoteOpen(false)}
+        name={name}
+        emoji={emoji}
+        note={currentNote}
+        loggedAt={loggedFull}
+      />
     </section>
   );
 }
