@@ -237,17 +237,15 @@ export function BirthdaySplash({
           }
 
           .engagement-badge {
-            background: rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(16px);
-            border: 1px solid rgba(148, 163, 184, 0.2);
-            box-shadow: 0 8px 32px rgba(14, 165, 233, 0.1);
+            background: rgba(6, 182, 212, 0.2);
+            border: 2px solid rgba(14, 165, 233, 0.5);
+            box-shadow: 0 8px 32px rgba(14, 165, 233, 0.2);
           }
 
           .engagement-quote {
-            background: rgba(15, 23, 42, 0.6);
-            border: 1px solid rgba(6, 182, 212, 0.3);
-            backdrop-filter: blur(16px);
-            box-shadow: 0 8px 32px rgba(14, 165, 233, 0.15);
+            background: rgba(15, 23, 42, 0.95);
+            border: 2px solid rgba(6, 182, 212, 0.5);
+            box-shadow: 0 8px 32px rgba(14, 165, 233, 0.25);
           }
 
           .engagement-btn {
@@ -328,10 +326,10 @@ export function BirthdaySplash({
           >
             <span
               className={
-                "inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] backdrop-blur-sm " +
+                "inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] " +
                 (isEngagement
                   ? "engagement-badge text-cyan-200"
-                  : "bg-white/20 text-white/90")
+                  : "bg-white text-sky-600")
               }
             >
               {isEngagement ? (
@@ -380,10 +378,10 @@ export function BirthdaySplash({
             {/* Main note */}
             <blockquote
               className={
-                "rounded-2xl p-5 shadow-lg backdrop-blur-sm " +
+                "rounded-2xl p-5 shadow-lg " +
                 (isEngagement
                   ? "engagement-quote"
-                  : "border border-white/20 bg-white/95")
+                  : "border-2 border-white bg-white/95")
               }
             >
               <p
@@ -399,10 +397,10 @@ export function BirthdaySplash({
             {/* From message */}
             <blockquote
               className={
-                "rounded-2xl p-5 shadow-lg backdrop-blur-sm " +
+                "rounded-2xl p-5 shadow-lg " +
                 (isEngagement
-                  ? "engagement-quote border border-cyan-300/30"
-                  : "border border-rose-200/60 bg-rose-50/95")
+                  ? "engagement-quote border border-cyan-300/50"
+                  : "border-2 border-white bg-white/95")
               }
             >
               <p
