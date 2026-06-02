@@ -237,15 +237,15 @@ export function BirthdaySplash({
           }
 
           .engagement-badge {
-            background: rgba(6, 182, 212, 0.2);
-            border: 2px solid rgba(14, 165, 233, 0.5);
-            box-shadow: 0 8px 32px rgba(14, 165, 233, 0.2);
+            background: rgba(6, 182, 212, 0.9);
+            border: 2px solid #0ea5e9;
+            box-shadow: 0 8px 32px rgba(14, 165, 233, 0.3);
           }
 
           .engagement-quote {
-            background: rgba(15, 23, 42, 0.95);
-            border: 2px solid rgba(6, 182, 212, 0.5);
-            box-shadow: 0 8px 32px rgba(14, 165, 233, 0.25);
+            background: #0f172a;
+            border: 2px solid #0ea5e9;
+            box-shadow: 0 8px 32px rgba(14, 165, 233, 0.35);
           }
 
           .engagement-btn {
@@ -381,7 +381,7 @@ export function BirthdaySplash({
                 "rounded-2xl p-5 shadow-lg " +
                 (isEngagement
                   ? "engagement-quote"
-                  : "border-2 border-white bg-white/95")
+                  : "border-2 border-white bg-white")
               }
             >
               <p
@@ -400,7 +400,7 @@ export function BirthdaySplash({
                 "rounded-2xl p-5 shadow-lg " +
                 (isEngagement
                   ? "engagement-quote border border-cyan-300/50"
-                  : "border-2 border-white bg-white/95")
+                  : "border-2 border-white bg-white")
               }
             >
               <p
@@ -430,7 +430,7 @@ export function BirthdaySplash({
               "animate-birthday-rise mt-8 w-full py-3 px-4 rounded-xl font-semibold text-white uppercase tracking-wide transition-all duration-300 " +
               (isEngagement
                 ? "engagement-btn"
-                : "bg-white/20 hover:bg-white/30")
+                : "bg-cyan-500 hover:bg-cyan-600")
             }
             style={{ animationDelay: "0.6s" }}
           >
