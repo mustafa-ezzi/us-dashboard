@@ -91,6 +91,8 @@ export function BirthdaySplash({
     <div
       className={
         "birthday-splash fixed inset-0 z-[200] flex flex-col overflow-hidden " +
+        // Added solid background fallback base classes to prevent flash transparency
+        (isEngagement ? "bg-[#001a33] " : "bg-[#ec4899] ") + 
         (leaving ? "animate-splash-out" : "animate-splash-in")
       }
       role="dialog"
@@ -268,8 +270,8 @@ export function BirthdaySplash({
         `}
       `}</style>
 
-      {/* Animated background */}
-      <div className="birthday-splash-bg absolute inset-0" />
+      {/* Animated background - added w-full h-full opacity-100 to guarantee coverage */}
+      <div className="birthday-splash-bg absolute inset-0 w-full h-full opacity-100" />
 
       {/* Engagement floating orbs */}
       {isEngagement && (
