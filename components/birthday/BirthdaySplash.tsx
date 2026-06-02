@@ -2,22 +2,64 @@
 
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { Sparkles } from "lucide-react";
+import { Sparkles, Heart } from "lucide-react";
 import {
   BIRTHDAY_NOTE,
   ENGAGEMENT_NOTE,
   type SplashOccasion,
 } from "@/lib/birthday";
 
-const CONFETTI = Array.from({ length: 28 }, (_, i) => ({
+type ConfettiPiece = {
+  id: number;
+  left: string;
+  delay: string;
+  duration: string;
+  size: number;
+  color: string;
+  opacity: number;
+  rotate: number;
+};
+
+// Standard confetti for birthday
+const BIRTHDAY_CONFETTI: ConfettiPiece[] = Array.from({ length: 28 }, (_, i) => ({
   id: i,
   left: `${(i * 17) % 100}%`,
   delay: `${(i * 0.13) % 2.4}s`,
   duration: `${2.8 + (i % 5) * 0.35}s`,
   size: 6 + (i % 4) * 2,
-  color: ["#E91E8C", "#F472A8", "#C8167A", "#FBCFE0", "#FFD166"][
-    i % 5
-  ],
+  color: ["#E91E8C", "#F472A8", "#C8167A", "#FBCFE0", "#FFD166"][i % 5],
+  opacity: 0.8,
+  rotate: 0,
+}));
+
+// Enhanced confetti for engagement with diamond/sparkle effect
+const ENGAGEMENT_CONFETTI: ConfettiPiece[] = Array.from({ length: 40 }, (_, i) => ({
+  id: i,
+  left: `${(i * 13) % 100}%`,
+  delay: `${(i * 0.09) % 2.2}s`,
+  duration: `${3.2 + (i % 6) * 0.4}s`,
+  size: 4 + (i % 5) * 2.5,
+  color: [
+    "#0EA5E9", // bright cyan
+    "#06B6D4", // cyan
+    "#0891B2", // dark cyan
+    "#3B82F6", // blue
+    "#1E40AF", // dark blue
+    "#E0F2FE", // light blue
+    "#BAE6FD", // lighter blue
+  ][i % 7],
+  opacity: 0.7 + (i % 3) * 0.15,
+  rotate: (i * 45) % 360,
+}));
+
+// Floating light orbs for engagement backdrop
+const FLOAT_ORBS = Array.from({ length: 6 }, (_, i) => ({
+  id: i,
+  size: 60 + (i % 3) * 40,
+  left: `${(i * 18) % 100}%`,
+  top: `${(i * 25) % 70}%`,
+  duration: `${12 + i * 2}s`,
+  delay: `${i * 0.5}s`,
 }));
 
 export function BirthdaySplash({
@@ -26,6 +68,7 @@ export function BirthdaySplash({
   occasion?: SplashOccasion;
 }) {
   const note = occasion === "engagement" ? ENGAGEMENT_NOTE : BIRTHDAY_NOTE;
+  const isEngagement = occasion === "engagement";
   const [visible, setVisible] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [leaving, setLeaving] = useState(false);
@@ -42,6 +85,8 @@ export function BirthdaySplash({
 
   if (!mounted || !visible) return null;
 
+  const confetti = isEngagement ? ENGAGEMENT_CONFETTI : BIRTHDAY_CONFETTI;
+
   return createPortal(
     <div
       className={
@@ -54,74 +99,344 @@ export function BirthdaySplash({
         occasion === "engagement" ? "Engagement day message" : "Birthday message"
       }
     >
+      <style>{`
+        @keyframes splash-in {
+          from {
+            opacity: 0;
+          }
+          to {
+            opacity: 1;
+          }
+        }
+
+        @keyframes splash-out {
+          from {
+            opacity: 1;
+          }
+          to {
+            opacity: 0;
+          }
+        }
+
+        @keyframes birthday-rise {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        @keyframes confetti-fall {
+          to {
+            transform: translateY(100vh) rotate(720deg);
+            opacity: 0;
+          }
+        }
+
+        @keyframes float-orbit {
+          0%, 100% {
+            transform: translate(0, 0);
+          }
+          33% {
+            transform: translate(30px, -30px);
+          }
+          66% {
+            transform: translate(-20px, 20px);
+          }
+        }
+
+        @keyframes glow-pulse {
+          0%, 100% {
+            box-shadow: 0 0 20px rgba(6, 182, 212, 0.5),
+                        0 0 40px rgba(14, 165, 233, 0.3);
+          }
+          50% {
+            box-shadow: 0 0 40px rgba(6, 182, 212, 0.8),
+                        0 0 80px rgba(14, 165, 233, 0.5);
+          }
+        }
+
+        @keyframes shimmer {
+          0%, 100% {
+            opacity: 0.3;
+          }
+          50% {
+            opacity: 1;
+          }
+        }
+
+        @keyframes float-up {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        @keyframes spin-slow {
+          from {
+            transform: rotate(0deg);
+          }
+          to {
+            transform: rotate(360deg);
+          }
+        }
+
+        @keyframes scale-pulse {
+          0%, 100% {
+            transform: scale(1);
+          }
+          50% {
+            transform: scale(1.05);
+          }
+        }
+
+        .animate-splash-in {
+          animation: splash-in 0.6s ease-out;
+        }
+
+        .animate-splash-out {
+          animation: splash-out 0.48s ease-in forwards;
+        }
+
+        .animate-birthday-rise {
+          animation: float-up 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+          opacity: 0;
+        }
+
+        .birthday-confetti-piece {
+          animation: confetti-fall linear forwards !important;
+        }
+
+        ${isEngagement ? `
+          .birthday-splash-bg {
+            background: linear-gradient(135deg, #001a33 0%, #0a3d5c 25%, #0f5a7a 50%, #1a4d6d 75%, #001f3f 100%);
+            position: relative;
+          }
+
+          .float-orb {
+            animation: float-orbit linear infinite;
+          }
+
+          .glow-pulse-effect {
+            animation: glow-pulse 4s ease-in-out infinite;
+          }
+
+          .shine-text {
+            background: linear-gradient(90deg, #e0f2fe 0%, #bae6fd 50%, #7dd3fc 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 15px rgba(14, 165, 233, 0.3));
+          }
+
+          .engagement-badge {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            box-shadow: 0 8px 32px rgba(14, 165, 233, 0.1);
+          }
+
+          .engagement-quote {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(6, 182, 212, 0.3);
+            backdrop-filter: blur(16px);
+            box-shadow: 0 8px 32px rgba(14, 165, 233, 0.15);
+          }
+
+          .engagement-btn {
+            background: linear-gradient(135deg, #0891b2 0%, #06b6d4 100%);
+            box-shadow: 0 0 30px rgba(6, 182, 212, 0.4),
+                        0 8px 32px rgba(14, 165, 233, 0.2);
+            transition: all 0.3s ease;
+          }
+
+          .engagement-btn:hover {
+            box-shadow: 0 0 50px rgba(6, 182, 212, 0.6),
+                        0 12px 48px rgba(14, 165, 233, 0.3);
+            transform: translateY(-2px);
+            background: linear-gradient(135deg, #06b6d4 0%, #0ea5e9 100%);
+          }
+        ` : `
+          .birthday-splash-bg {
+            background: linear-gradient(135deg, #ec4899 0%, #f43f5e 50%, #f97316 100%);
+          }
+        `}
+      `}</style>
+
+      {/* Animated background */}
       <div className="birthday-splash-bg absolute inset-0" />
 
+      {/* Engagement floating orbs */}
+      {isEngagement && (
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          {FLOAT_ORBS.map((orb) => (
+            <div
+              key={`orb-${orb.id}`}
+              className="float-orb glow-pulse-effect absolute rounded-full"
+              style={{
+                width: orb.size,
+                height: orb.size,
+                left: orb.left,
+                top: orb.top,
+                background: `radial-gradient(circle at 30% 30%, rgba(14, 165, 233, 0.3), rgba(6, 182, 212, 0.1))`,
+                animation: `float-orbit ${orb.duration} linear infinite`,
+                animationDelay: orb.delay,
+                filter: "blur(1px)",
+              }}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* Confetti */}
       <div className="birthday-confetti pointer-events-none absolute inset-0 overflow-hidden">
-        {CONFETTI.map((c) => (
+        {confetti.map((c) => (
           <span
             key={c.id}
-            className="birthday-confetti-piece absolute rounded-full opacity-80"
+            className="birthday-confetti-piece absolute rounded-full"
             style={{
               left: c.left,
               width: c.size,
               height: c.size,
               backgroundColor: c.color,
+              opacity: isEngagement ? c.opacity : 0.8,
               animationDelay: c.delay,
               animationDuration: c.duration,
+              transform: isEngagement ? `rotate(${c.rotate}deg)` : "none",
+              boxShadow: isEngagement
+                ? `0 0 ${c.size * 2}px ${c.color}80`
+                : "none",
             }}
           />
         ))}
       </div>
 
+      {/* Content */}
       <div className="relative z-10 flex min-h-0 flex-1 flex-col px-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[max(2.5rem,env(safe-area-inset-top))]">
         <div className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center">
-          <div className="animate-birthday-rise text-center" style={{ animationDelay: "0.1s" }}>
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-white/20 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-white/90 backdrop-blur-sm">
-              <Sparkles size={12} /> Us Dashboard
+          {/* Badge */}
+          <div
+            className="animate-birthday-rise text-center"
+            style={{ animationDelay: "0.1s" }}
+          >
+            <span
+              className={
+                "inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] backdrop-blur-sm " +
+                (isEngagement
+                  ? "engagement-badge text-cyan-200"
+                  : "bg-white/20 text-white/90")
+              }
+            >
+              {isEngagement ? (
+                <>
+                  <Heart size={12} className="text-cyan-300" />
+                  Us Dashboard
+                </>
+              ) : (
+                <>
+                  <Sparkles size={12} />
+                  Us Dashboard
+                </>
+              )}
             </span>
           </div>
 
+          {/* Headline */}
           <h1
-            className="animate-birthday-rise mt-5 text-center text-[2rem] font-semibold leading-tight tracking-tight text-white drop-shadow-sm"
+            className={
+              "animate-birthday-rise mt-6 text-center font-bold tracking-tight drop-shadow-lg " +
+              (isEngagement
+                ? "shine-text text-5xl leading-tight"
+                : "text-white text-[2rem] leading-tight")
+            }
             style={{ animationDelay: "0.2s" }}
           >
             {note.headline}
           </h1>
 
+          {/* Subheading */}
           <p
-            className="animate-birthday-rise mt-2 text-center text-sm text-white/85"
+            className={
+              "animate-birthday-rise mt-3 text-center text-sm " +
+              (isEngagement ? "text-cyan-100/90" : "text-white/85")
+            }
             style={{ animationDelay: "0.3s" }}
           >
             {note.subhead}
           </p>
 
+          {/* Quotes */}
           <div
-            className="animate-birthday-rise mt-8 space-y-4"
+            className="animate-birthday-rise mt-8 space-y-3"
             style={{ animationDelay: "0.45s" }}
           >
-            <blockquote className="rounded-3xl border border-white/20 bg-white/95 p-5 shadow-card backdrop-blur-sm">
-              <p className="text-[15px] leading-relaxed text-ink-soft">
+            {/* Main note */}
+            <blockquote
+              className={
+                "rounded-2xl p-5 shadow-lg backdrop-blur-sm " +
+                (isEngagement
+                  ? "engagement-quote"
+                  : "border border-white/20 bg-white/95")
+              }
+            >
+              <p
+                className={
+                  "text-[15px] leading-relaxed " +
+                  (isEngagement ? "text-cyan-50" : "text-ink-soft")
+                }
+              >
                 {note.about}
               </p>
             </blockquote>
 
-            <blockquote className="rounded-3xl border border-rose-200/60 bg-rose-50/95 p-5 shadow-card backdrop-blur-sm">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-rose-700">
-                From Mustafa
+            {/* From message */}
+            <blockquote
+              className={
+                "rounded-2xl p-5 shadow-lg backdrop-blur-sm " +
+                (isEngagement
+                  ? "engagement-quote border border-cyan-300/30"
+                  : "border border-rose-200/60 bg-rose-50/95")
+              }
+            >
+              <p
+                className={
+                  "text-[11px] font-bold uppercase tracking-[0.1em] " +
+                  (isEngagement ? "text-cyan-300" : "text-rose-700")
+                }
+              >
+                {isEngagement ? "💙 From Mustafa" : "From Mustafa"}
               </p>
-              <p className="mt-2 text-[15px] leading-relaxed text-ink-soft">
+              <p
+                className={
+                  "mt-2 text-[15px] leading-relaxed " +
+                  (isEngagement ? "text-cyan-50" : "text-ink-soft")
+                }
+              >
                 {note.fromMustafa}
               </p>
             </blockquote>
           </div>
 
+          {/* CTA Button */}
           <button
             type="button"
             onClick={dismiss}
-            className="animate-birthday-rise btn-primary mt-8 w-full !bg-white !text-rose !shadow-cardHover hover:!bg-rose-50"
+            className={
+              "animate-birthday-rise mt-8 w-full py-3 px-4 rounded-xl font-semibold text-white uppercase tracking-wide transition-all duration-300 " +
+              (isEngagement
+                ? "engagement-btn"
+                : "bg-white/20 hover:bg-white/30")
+            }
             style={{ animationDelay: "0.6s" }}
           >
-            Open your dashboard
+            {isEngagement ? "💍 Open your dashboard" : "Open your dashboard"}
           </button>
         </div>
       </div>

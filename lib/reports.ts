@@ -8,6 +8,7 @@ import {
     ReportMetrics,
     ReportType,
 } from "./types";
+import { calculateWeeklyHealthScore } from "./health-score";
 
 export interface ReportGenerationOptions {
     periodStartISO: string; // YYYY-MM-DD
@@ -17,6 +18,7 @@ export interface ReportGenerationOptions {
     moods: MoodEntry[];
     kindActs: KindAct[];
     violations: Violation[];
+    rules?: Rule[];
     memories?: { createdISO: string; text?: string }[];
 }
 
@@ -24,7 +26,8 @@ export interface ReportGenerationOptions {
  * Generate metrics for a given period
  */
 function generateMetrics(options: ReportGenerationOptions): ReportMetrics {
-    const { healthScores, moods, kindActs, violations, memories } = options;
+    const { moods, kindActs, violations, memories } = options;
+    const healthScores = getReportHealthScores(options);
 
     const periodStart = new Date(options.periodStartISO);
     const periodEnd = new Date(options.periodEndISO);
@@ -85,6 +88,27 @@ function generateMetrics(options: ReportGenerationOptions): ReportMetrics {
     return {
         averageHealthScore,
         moodTrend,
+        moodAvgScore:
+            healthScores.length > 0
+                ? Math.round(
+                    (healthScores.reduce((sum, s) => sum + s.moodAvgScore, 0) /
+                        healthScores.length) *
+                    10
+                ) / 10
+                : periodMoods.length > 0
+                    ? Math.round(
+                        (periodMoods.reduce((sum, m) => sum + m.score, 0) /
+                            periodMoods.length) *
+                        10
+                    ) / 10
+                    : undefined,
+        moodSyncPercentage:
+            healthScores.length > 0
+                ? Math.round(
+                    healthScores.reduce((sum, s) => sum + s.moodSyncPercentage, 0) /
+                    healthScores.length
+                )
+                : undefined,
         totalKindActs,
         totalViolations,
         checkInDaysCount,
@@ -96,7 +120,8 @@ function generateMetrics(options: ReportGenerationOptions): ReportMetrics {
  * Generate highlights for the period
  */
 function generateHighlights(options: ReportGenerationOptions): string[] {
-    const { healthScores, kindActs, violations } = options;
+    const { kindActs, violations } = options;
+    const healthScores = getReportHealthScores(options);
     const highlights: string[] = [];
 
     // Best week
@@ -203,6 +228,40 @@ export function generateReport(options: ReportGenerationOptions): Omit<Report, "
         insights,
         healthScoresAvg: metrics.averageHealthScore,
     };
+}
+
+function getReportHealthScores(options: ReportGenerationOptions) {
+    if (options.healthScores.length > 0) return options.healthScores;
+
+    const weekStarts = getWeekStartsInRange(
+        options.periodStartISO,
+        options.periodEndISO
+    );
+
+    return weekStarts.map((weekStartISO) => ({
+        id: `computed-${weekStartISO}`,
+        ...calculateWeeklyHealthScore(
+            weekStartISO,
+            options.moods,
+            options.kindActs,
+            options.violations,
+            options.rules ?? []
+        ),
+        computedISO: new Date().toISOString(),
+    }));
+}
+
+function getWeekStartsInRange(periodStartISO: string, periodEndISO: string) {
+    const starts: string[] = [];
+    const cursor = new Date(`${periodStartISO}T00:00:00`);
+    const end = new Date(`${periodEndISO}T00:00:00`);
+
+    while (cursor <= end) {
+        starts.push(formatDateISO(cursor));
+        cursor.setDate(cursor.getDate() + 7);
+    }
+
+    return starts;
 }
 
 /**

@@ -149,7 +149,7 @@ export async function POST(req: NextRequest) {
         const periodEndExclusiveISO = addDaysISO(dateRange.endISO, 1);
 
         // Fetch all data needed
-        const [healthScores, moods, kindActs, violations] = await Promise.all([
+        const [healthScores, moods, kindActs, violations, rules] = await Promise.all([
             supabase
                 .from("weekly_health_scores")
                 .select("*")
@@ -223,6 +223,21 @@ export async function POST(req: NextRequest) {
                         createdISO: v.created_at,
                     }));
                 }),
+            supabase
+                .from("rules")
+                .select("*")
+                .eq("couple_id", coupleId)
+                .then((res) => {
+                    if (res.error) throw res.error;
+                    return (res.data || []).map((r: any) => ({
+                        id: r.id,
+                        title: r.title,
+                        description: r.description,
+                        proposedBy: r.proposed_by,
+                        status: r.status,
+                        createdISO: r.created_at,
+                    }));
+                }),
         ]);
 
         // Generate report
@@ -234,6 +249,7 @@ export async function POST(req: NextRequest) {
             moods,
             kindActs,
             violations,
+            rules,
         });
 
         // Save to database

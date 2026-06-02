@@ -106,6 +106,8 @@ export interface WeeklyHealthScore {
 export interface ReportMetrics {
   averageHealthScore: number;
   moodTrend: "improving" | "stable" | "declining";
+  moodAvgScore?: number;
+  moodSyncPercentage?: number;
   totalKindActs: number;
   totalViolations: number;
   checkInDaysCount: number;
