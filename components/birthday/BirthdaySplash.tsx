@@ -3,7 +3,11 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { Sparkles } from "lucide-react";
-import { BIRTHDAY_NOTE, isBirthdaySplashEnabled } from "@/lib/birthday";
+import {
+  BIRTHDAY_NOTE,
+  ENGAGEMENT_NOTE,
+  type SplashOccasion,
+} from "@/lib/birthday";
 
 const CONFETTI = Array.from({ length: 28 }, (_, i) => ({
   id: i,
@@ -16,14 +20,19 @@ const CONFETTI = Array.from({ length: 28 }, (_, i) => ({
   ],
 }));
 
-export function BirthdaySplash() {
+export function BirthdaySplash({
+  occasion = "birthday",
+}: {
+  occasion?: SplashOccasion;
+}) {
+  const note = occasion === "engagement" ? ENGAGEMENT_NOTE : BIRTHDAY_NOTE;
   const [visible, setVisible] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [leaving, setLeaving] = useState(false);
 
   useEffect(() => {
     setMounted(true);
-    if (isBirthdaySplashEnabled()) setVisible(true);
+    setVisible(true);
   }, []);
 
   const dismiss = () => {
@@ -41,7 +50,9 @@ export function BirthdaySplash() {
       }
       role="dialog"
       aria-modal="true"
-      aria-label="Birthday message"
+      aria-label={
+        occasion === "engagement" ? "Engagement day message" : "Birthday message"
+      }
     >
       <div className="birthday-splash-bg absolute inset-0" />
 
@@ -74,14 +85,14 @@ export function BirthdaySplash() {
             className="animate-birthday-rise mt-5 text-center text-[2rem] font-semibold leading-tight tracking-tight text-white drop-shadow-sm"
             style={{ animationDelay: "0.2s" }}
           >
-            {BIRTHDAY_NOTE.headline}
+            {note.headline}
           </h1>
 
           <p
             className="animate-birthday-rise mt-2 text-center text-sm text-white/85"
             style={{ animationDelay: "0.3s" }}
           >
-            {BIRTHDAY_NOTE.subhead}
+            {note.subhead}
           </p>
 
           <div
@@ -90,7 +101,7 @@ export function BirthdaySplash() {
           >
             <blockquote className="rounded-3xl border border-white/20 bg-white/95 p-5 shadow-card backdrop-blur-sm">
               <p className="text-[15px] leading-relaxed text-ink-soft">
-                {BIRTHDAY_NOTE.about}
+                {note.about}
               </p>
             </blockquote>
 
@@ -99,7 +110,7 @@ export function BirthdaySplash() {
                 From Mustafa
               </p>
               <p className="mt-2 text-[15px] leading-relaxed text-ink-soft">
-                {BIRTHDAY_NOTE.fromMustafa}
+                {note.fromMustafa}
               </p>
             </blockquote>
           </div>

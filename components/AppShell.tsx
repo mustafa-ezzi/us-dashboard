@@ -6,12 +6,15 @@ import { TopBar } from "./TopBar";
 import { BottomNav } from "./BottomNav";
 import { LoginScreen } from "./auth/LoginScreen";
 import { BirthdaySplash } from "./birthday/BirthdaySplash";
-import { isBirthdaySplashEnabled } from "@/lib/birthday";
+import {
+  isBirthdaySplashEnabled,
+  isEngagementSplashEnabled,
+} from "@/lib/birthday";
 import { useStore } from "@/lib/store";
 import { Loader2, AlertTriangle } from "lucide-react";
 
 export function AppShell({ children }: { children: ReactNode }) {
-  const { authStatus, ready, partner } = useStore();
+  const { authStatus, ready, partner, state } = useStore();
 
   if (authStatus === "no-config") {
     return <ConfigMissingScreen />;
@@ -31,9 +34,15 @@ export function AppShell({ children }: { children: ReactNode }) {
   // Signed in but the user isn't enrolled in any couple in the database.
   if (!partner) return <NotEnrolledScreen />;
 
+  const showEngagementSplash = isEngagementSplashEnabled(
+    state.settings.engagementISO
+  );
+  const showBirthdaySplash = !showEngagementSplash && isBirthdaySplashEnabled();
+
   return (
     <>
-      {isBirthdaySplashEnabled() && <BirthdaySplash />}
+      {showEngagementSplash && <BirthdaySplash occasion="engagement" />}
+      {showBirthdaySplash && <BirthdaySplash occasion="birthday" />}
       <div className="mx-auto flex min-h-screen w-full max-w-md flex-col bg-cream">
         <TopBar />
         <main className="flex-1 px-4 pb-28 pt-4">
