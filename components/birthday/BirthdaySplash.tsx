@@ -91,8 +91,6 @@ export function BirthdaySplash({
     <div
       className={
         "birthday-splash fixed inset-0 z-[200] flex flex-col overflow-hidden " +
-        // Added solid background fallback base classes to prevent flash transparency
-        (isEngagement ? "bg-[#001a33] " : "bg-[#ec4899] ") + 
         (leaving ? "animate-splash-out" : "animate-splash-in")
       }
       role="dialog"
@@ -218,7 +216,7 @@ export function BirthdaySplash({
 
         ${isEngagement ? `
           .birthday-splash-bg {
-            background: linear-gradient(135deg, #001a33 0%, #0a3d5c 25%, #0f5a7a 50%, #1a4d6d 75%, #001f3f 100%);
+            background: linear-gradient(135deg, #0a1e2e 0%, #0f3460 30%, #16213e 60%, #0a1e2e 100%);
             position: relative;
           }
 
@@ -231,37 +229,36 @@ export function BirthdaySplash({
           }
 
           .shine-text {
-            background: linear-gradient(90deg, #e0f2fe 0%, #bae6fd 50%, #7dd3fc 100%);
-            background-clip: text;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            filter: drop-shadow(0 0 15px rgba(14, 165, 233, 0.3));
+            color: #e0f2fe;
+            font-weight: 700;
+            text-shadow: 0 0 20px rgba(14, 165, 233, 0.4);
           }
 
           .engagement-badge {
-            background: rgba(6, 182, 212, 0.9);
-            border: 2px solid #0ea5e9;
-            box-shadow: 0 8px 32px rgba(14, 165, 233, 0.3);
+            background: rgba(6, 182, 212, 0.15);
+            border: 1.5px solid #0ea5e9;
+            box-shadow: 0 4px 16px rgba(14, 165, 233, 0.15);
           }
 
           .engagement-quote {
-            background: #0f172a;
-            border: 2px solid #0ea5e9;
-            box-shadow: 0 8px 32px rgba(14, 165, 233, 0.35);
+            background: rgba(15, 23, 42, 0.7);
+            border: 1.5px solid rgba(14, 165, 233, 0.4);
+            box-shadow: 0 8px 24px rgba(14, 165, 233, 0.15);
+            backdrop-filter: blur(8px);
           }
 
           .engagement-btn {
-            background: linear-gradient(135deg, #0891b2 0%, #06b6d4 100%);
-            box-shadow: 0 0 30px rgba(6, 182, 212, 0.4),
-                        0 8px 32px rgba(14, 165, 233, 0.2);
-            transition: all 0.3s ease;
+            background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+            box-shadow: 0 4px 20px rgba(6, 182, 212, 0.3);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: none;
           }
 
           .engagement-btn:hover {
-            box-shadow: 0 0 50px rgba(6, 182, 212, 0.6),
-                        0 12px 48px rgba(14, 165, 233, 0.3);
-            transform: translateY(-2px);
-            background: linear-gradient(135deg, #06b6d4 0%, #0ea5e9 100%);
+            box-shadow: 0 8px 40px rgba(6, 182, 212, 0.5),
+                        0 0 30px rgba(14, 165, 233, 0.4);
+            transform: translateY(-3px);
+            background: linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%);
           }
         ` : `
           .birthday-splash-bg {
@@ -270,8 +267,8 @@ export function BirthdaySplash({
         `}
       `}</style>
 
-      {/* Animated background - added w-full h-full opacity-100 to guarantee coverage */}
-      <div className="birthday-splash-bg absolute inset-0 w-full h-full opacity-100" />
+      {/* Animated background */}
+      <div className="birthday-splash-bg absolute inset-0" />
 
       {/* Engagement floating orbs */}
       {isEngagement && (
@@ -380,16 +377,16 @@ export function BirthdaySplash({
             {/* Main note */}
             <blockquote
               className={
-                "rounded-2xl p-5 shadow-lg " +
+                "rounded-3xl p-6 shadow-md transition-all duration-300 " +
                 (isEngagement
                   ? "engagement-quote"
-                  : "border-2 border-white bg-white")
+                  : "border border-white/30 bg-white")
               }
             >
               <p
                 className={
-                  "text-[15px] leading-relaxed " +
-                  (isEngagement ? "text-cyan-50" : "text-ink-soft")
+                  "text-[16px] font-medium leading-relaxed " +
+                  (isEngagement ? "text-cyan-50" : "text-slate-800")
                 }
               >
                 {note.about}
@@ -399,24 +396,24 @@ export function BirthdaySplash({
             {/* From message */}
             <blockquote
               className={
-                "rounded-2xl p-5 shadow-lg " +
+                "rounded-3xl p-6 shadow-md transition-all duration-300 " +
                 (isEngagement
-                  ? "engagement-quote border border-cyan-300/50"
-                  : "border-2 border-white bg-white")
+                  ? "engagement-quote"
+                  : "border border-white/30 bg-white")
               }
             >
               <p
                 className={
-                  "text-[11px] font-bold uppercase tracking-[0.1em] " +
-                  (isEngagement ? "text-cyan-300" : "text-rose-700")
+                  "text-[12px] font-semibold uppercase tracking-wider letter-spacing-1 " +
+                  (isEngagement ? "text-cyan-300" : "text-cyan-600")
                 }
               >
                 {isEngagement ? "💙 From Mustafa" : "From Mustafa"}
               </p>
               <p
                 className={
-                  "mt-2 text-[15px] leading-relaxed " +
-                  (isEngagement ? "text-cyan-50" : "text-ink-soft")
+                  "mt-3 text-[16px] font-medium leading-relaxed " +
+                  (isEngagement ? "text-cyan-50" : "text-slate-800")
                 }
               >
                 {note.fromMustafa}
