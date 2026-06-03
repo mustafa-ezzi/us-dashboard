@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useStore } from "@/lib/store";
 import { Heart, Plus } from "lucide-react";
 import { useState } from "react";
@@ -20,14 +21,14 @@ export function LastKindActCard() {
     last?.by === "her" ? her.name : last?.by === "him" ? him.name : "";
 
   return (
-    <section className="card p-4">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <span className="grid h-8 w-8 place-items-center rounded-xl bg-rose-100 text-rose">
+    <section className="card p-4 relative">
+      <Link href="/memories" className="block group">
+        <div className="flex items-center gap-2 pr-12">
+          <span className="grid h-8 w-8 flex-shrink-0 place-items-center rounded-xl bg-rose-100 text-rose group-hover:bg-rose-200 transition">
             <Heart size={16} />
           </span>
-          <div>
-            <p className="stat-label">Last kind act</p>
+          <div className="flex-1 min-w-0">
+            <p className="stat-label group-hover:text-rose transition">Last kind act</p>
             <p className="text-sm text-ink-soft">
               {last
                 ? `${byName} · ${formatDistanceToNow(new Date(last.createdISO), {
@@ -37,22 +38,23 @@ export function LastKindActCard() {
             </p>
           </div>
         </div>
-        <button
-          onClick={() => {
-            setOpen(true);
-            setBy(partner ?? "her");
-          }}
-          className="grid h-9 w-9 place-items-center rounded-full bg-rose-100 text-rose hover:bg-rose-200"
-          aria-label="Log kind act"
-        >
-          <Plus size={16} />
-        </button>
-      </div>
-      {last && (
-        <p className="mt-3 rounded-xl bg-rose-50 px-3 py-2 text-sm text-ink-soft">
-          "{last.text}"
-        </p>
-      )}
+        {last && (
+          <p className="mt-3 rounded-xl bg-rose-50 px-3 py-2 text-sm text-ink-soft group-hover:bg-rose-100 transition">
+            "{last.text}"
+          </p>
+        )}
+      </Link>
+
+      <button
+        onClick={() => {
+          setOpen(true);
+          setBy(partner ?? "her");
+        }}
+        className="absolute top-4 right-4 grid h-9 w-9 place-items-center rounded-full bg-rose-100 text-rose hover:bg-rose-200 transition"
+        aria-label="Log kind act"
+      >
+        <Plus size={16} />
+      </button>
 
       <Modal
         open={open}
