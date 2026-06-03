@@ -32,8 +32,8 @@ export function LastKindActCard() {
             <p className="text-sm text-ink-soft">
               {last
                 ? `${byName} · ${formatDistanceToNow(new Date(last.createdISO), {
-                    addSuffix: true,
-                  })}`
+                  addSuffix: true,
+                })}`
                 : "Nothing logged yet"}
             </p>
           </div>
