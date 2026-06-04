@@ -106,6 +106,16 @@ export interface Memory {
   createdISO: string;
 }
 
+export interface SecretMessage {
+  id: string;
+  dateISO: string; // YYYY-MM-DD
+  time: string; // HH:MM
+  createdBy: PartnerKey;
+  note: string;
+  mood: string;
+  createdISO: string;
+}
+
 export type EngagementLevel = "low" | "medium" | "high";
 
 export interface WeeklyHealthScore {
@@ -168,6 +178,7 @@ export interface AppState {
   immaturity: ImmaturityEntry[];
   kindActs: KindAct[];
   memories: Memory[];
+  secretMessages: SecretMessage[];
   weeklyHealthScores: WeeklyHealthScore[];
   reports: Report[];
 }

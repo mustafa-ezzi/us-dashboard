@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { Settings as SettingsIcon } from "lucide-react";
+import { Send, Settings as SettingsIcon } from "lucide-react";
 import { useStore } from "@/lib/store";
 import { usePathname } from "next/navigation";
 
@@ -13,6 +13,7 @@ const titles: Record<string, string> = {
   "/contract": "Contract",
   "/settings": "Settings",
   "/reports": "Reports",
+  "/secret-messages": "Secret Messages",
 };
 
 export function TopBar() {
@@ -40,13 +41,22 @@ export function TopBar() {
             <h1 className="text-base font-semibold text-ink">{title}</h1>
           </div>
         </div>
-        <Link
-          href="/settings"
-          aria-label="Settings"
-          className="grid h-10 w-10 place-items-center rounded-full border border-line bg-white text-ink-soft transition active:scale-95 hover:bg-rose-50"
-        >
-          <SettingsIcon size={18} />
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link
+            href="/secret-messages"
+            aria-label="Secret messages"
+            className="grid h-10 w-10 place-items-center rounded-full border border-line bg-white text-ink-soft transition active:scale-95 hover:bg-rose-50"
+          >
+            <Send size={17} />
+          </Link>
+          <Link
+            href="/settings"
+            aria-label="Settings"
+            className="grid h-10 w-10 place-items-center rounded-full border border-line bg-white text-ink-soft transition active:scale-95 hover:bg-rose-50"
+          >
+            <SettingsIcon size={18} />
+          </Link>
+        </div>
       </div>
     </header>
   );

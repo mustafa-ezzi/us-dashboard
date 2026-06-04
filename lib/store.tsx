@@ -120,6 +120,15 @@ interface MemoryRow {
   memory_date: string;
   created_at: string;
 }
+interface SecretMessageRow {
+  id: string;
+  date_iso: string;
+  time: string;
+  created_by: PartnerKey;
+  note: string;
+  mood: string;
+  created_at: string;
+}
 
 type AuthStatus = "loading" | "no-config" | "signed-out" | "signed-in";
 
@@ -188,6 +197,14 @@ interface StoreValue {
     imageFile?: File;
   }) => Promise<void>;
   removeMemory: (id: string) => Promise<void>;
+  // secret messages
+  addSecretMessage: (input: {
+    dateISO: string;
+    time: string;
+    note: string;
+    mood: string;
+  }) => Promise<void>;
+  removeSecretMessage: (id: string) => Promise<void>;
   // util
   refresh: () => Promise<void>;
 }
@@ -212,6 +229,7 @@ const emptyState: AppState = {
   immaturity: [],
   kindActs: [],
   memories: [],
+  secretMessages: [],
   weeklyHealthScores: [],
   reports: [],
 };
@@ -309,6 +327,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       immaturityRes,
       kindActsRes,
       memoriesRes,
+      secretMessagesRes,
     ] = await Promise.all([
       supabase.from("couples").select("*").eq("id", cid).single(),
       supabase
@@ -349,6 +368,12 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         .eq("couple_id", cid)
         .order("memory_date", { ascending: false })
         .order("created_at", { ascending: false }),
+      supabase
+        .from("secret_messages")
+        .select("*")
+        .eq("couple_id", cid)
+        .order("date_iso", { ascending: false })
+        .order("time", { ascending: false }),
     ]);
 
     const couple = coupleRes.data as CoupleRow | null;
@@ -421,6 +446,15 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         imageUrl: m.image_url ?? undefined,
         tags: (m.tags ?? []) as any,
         memoryDateISO: m.memory_date,
+        createdISO: m.created_at,
+      })),
+      secretMessages: ((secretMessagesRes.data ?? []) as SecretMessageRow[]).map((m) => ({
+        id: m.id,
+        dateISO: m.date_iso,
+        time: m.time,
+        createdBy: m.created_by,
+        note: m.note,
+        mood: m.mood,
         createdISO: m.created_at,
       })),
       weeklyHealthScores: [],
@@ -538,6 +572,16 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           event: "*",
           schema: "public",
           table: "kind_acts",
+          filter: `couple_id=eq.${coupleId}`,
+        },
+        refreshSoon
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "secret_messages",
           filter: `couple_id=eq.${coupleId}`,
         },
         refreshSoon
@@ -1099,6 +1143,60 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     [supabaseRequired]
   );
 
+  const addSecretMessage = useCallback<StoreValue["addSecretMessage"]>(
+    async ({ dateISO, time, note, mood }) => {
+      const sb = supabaseRequired();
+      const res = await sb
+        .from("secret_messages")
+        .insert({
+          couple_id: coupleId!,
+          created_by: me(),
+          date_iso: dateISO,
+          time,
+          note,
+          mood,
+        })
+        .select("*")
+        .single();
+      const data = res.data as SecretMessageRow | null;
+      if (res.error || !data) {
+        throw new Error(res.error?.message ?? "Could not save secret message.");
+      }
+
+      setState((s) => ({
+        ...s,
+        secretMessages: [
+          {
+            id: data.id,
+            dateISO: data.date_iso,
+            time: data.time,
+            createdBy: data.created_by,
+            note: data.note,
+            mood: data.mood,
+            createdISO: data.created_at,
+          },
+          ...s.secretMessages,
+        ].sort(
+          (a, b) =>
+            b.dateISO.localeCompare(a.dateISO) || b.time.localeCompare(a.time)
+        ),
+      }));
+    },
+    [coupleId, supabaseRequired, partner]
+  );
+
+  const removeSecretMessage = useCallback<StoreValue["removeSecretMessage"]>(
+    async (id) => {
+      const sb = supabaseRequired();
+      await sb.from("secret_messages").delete().eq("id", id);
+      setState((s) => ({
+        ...s,
+        secretMessages: s.secretMessages.filter((m) => m.id !== id),
+      }));
+    },
+    [supabaseRequired]
+  );
+
   const refresh = useCallback(async () => {
     await fetchAllRef.current();
   }, []);
@@ -1133,6 +1231,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       logKindAct,
       addMemory,
       removeMemory,
+      addSecretMessage,
+      removeSecretMessage,
       refresh,
     }),
     [
@@ -1164,6 +1264,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       logKindAct,
       addMemory,
       removeMemory,
+      addSecretMessage,
+      removeSecretMessage,
       refresh,
     ]
   );
