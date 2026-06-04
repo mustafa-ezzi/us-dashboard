@@ -1,18 +1,20 @@
-import { KindActsHistory } from "@/components/memories/KindActsHistory";
+import { AddMemoryButton } from "@/components/memories/AddMemoryButton";
+import { MemoryTimeline } from "@/components/memories/MemoryTimeline";
 import { PageHeader } from "@/components/ui/PageHeader";
 
 export const metadata = {
-    title: "Kind Acts — Us Dashboard",
-    description: "View your kind acts history",
+  title: "Memory Jar — Us Dashboard",
+  description: "Your shared memories and special moments",
 };
 
 export default function MemoriesPage() {
-    return (
-        <>
-            <PageHeader title="Kind Acts" />
-            <div className="page-container mt-4">
-                <KindActsHistory />
-            </div>
-        </>
-    );
+  return (
+    <>
+      <PageHeader title="Memory Jar ✨" />
+      <div className="page-container mt-4 space-y-4">
+        <AddMemoryButton />
+        <MemoryTimeline />
+      </div>
+    </>
+  );
 }

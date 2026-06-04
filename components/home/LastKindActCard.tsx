@@ -22,7 +22,7 @@ export function LastKindActCard() {
 
   return (
     <section className="card p-4 relative">
-      <Link href="/memories" className="block group">
+      <Link href="/memories/kind-acts" className="block group">
         <div className="flex items-center gap-2 pr-12">
           <span className="grid h-8 w-8 flex-shrink-0 place-items-center rounded-xl bg-rose-100 text-rose group-hover:bg-rose-200 transition">
             <Heart size={16} />

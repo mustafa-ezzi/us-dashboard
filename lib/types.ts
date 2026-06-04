@@ -86,6 +86,26 @@ export interface KindAct {
   createdISO: string;
 }
 
+export type MemoryTag = 
+  | "First Times" 
+  | "Fights We Survived" 
+  | "Laughed Hard" 
+  | "Dates" 
+  | "Special Moments"
+  | "Milestones"
+  | "Adventures"
+  | "Inside Jokes"
+  | "Other";
+
+export interface Memory {
+  id: string;
+  text: string;
+  imageUrl?: string;
+  tags: MemoryTag[];
+  memoryDateISO: string; // YYYY-MM-DD
+  createdISO: string;
+}
+
 export type EngagementLevel = "low" | "medium" | "high";
 
 export interface WeeklyHealthScore {
@@ -147,6 +167,7 @@ export interface AppState {
   apologies: ApologyEntry[];
   immaturity: ImmaturityEntry[];
   kindActs: KindAct[];
+  memories: Memory[];
   weeklyHealthScores: WeeklyHealthScore[];
   reports: Report[];
 }

@@ -88,7 +88,7 @@ export function NewVersionPrompt() {
           <div className="min-w-0 flex-1">
             <p className="text-sm font-semibold text-ink">New version is up</p>
             <p className="mt-1 text-sm leading-5 text-ink-soft">
-              Restart your app to experience the new version.
+              Restart your app to experience the new Memory jar Experience 💝
             </p>
             {latestVersion.shortVersion && (
               <p className="mt-1 text-[11px] text-ink-subtle">

@@ -112,6 +112,14 @@ interface KindActRow {
   text: string;
   created_at: string;
 }
+interface MemoryRow {
+  id: string;
+  text: string;
+  image_url: string | null;
+  tags: string[];
+  memory_date: string;
+  created_at: string;
+}
 
 type AuthStatus = "loading" | "no-config" | "signed-out" | "signed-in";
 
@@ -172,6 +180,14 @@ interface StoreValue {
   logImmaturity: (note?: string) => Promise<void>;
   removeImmaturity: (id: string) => Promise<void>;
   logKindAct: (text: string, by?: PartnerKey) => Promise<void>;
+  // memories
+  addMemory: (input: {
+    text: string;
+    memoryDateISO: string;
+    tags: string[];
+    imageFile?: File;
+  }) => Promise<void>;
+  removeMemory: (id: string) => Promise<void>;
   // util
   refresh: () => Promise<void>;
 }
@@ -195,6 +211,7 @@ const emptyState: AppState = {
   apologies: [],
   immaturity: [],
   kindActs: [],
+  memories: [],
   weeklyHealthScores: [],
   reports: [],
 };
@@ -291,6 +308,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       apologiesRes,
       immaturityRes,
       kindActsRes,
+      memoriesRes,
     ] = await Promise.all([
       supabase.from("couples").select("*").eq("id", cid).single(),
       supabase
@@ -324,6 +342,12 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         .from("kind_acts")
         .select("*")
         .eq("couple_id", cid)
+        .order("created_at", { ascending: false }),
+      supabase
+        .from("memories")
+        .select("*")
+        .eq("couple_id", cid)
+        .order("memory_date", { ascending: false })
         .order("created_at", { ascending: false }),
     ]);
 
@@ -390,6 +414,14 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         by: k.by_partner,
         text: k.text,
         createdISO: k.created_at,
+      })),
+      memories: ((memoriesRes.data ?? []) as MemoryRow[]).map((m) => ({
+        id: m.id,
+        text: m.text,
+        imageUrl: m.image_url ?? undefined,
+        tags: (m.tags ?? []) as any,
+        memoryDateISO: m.memory_date,
+        createdISO: m.created_at,
       })),
       weeklyHealthScores: [],
       reports: [],
@@ -1007,6 +1039,66 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     [coupleId, supabaseRequired, partner]
   );
 
+  const addMemory = useCallback<StoreValue["addMemory"]>(
+    async ({ text, memoryDateISO, tags, imageFile }) => {
+      const sb = supabaseRequired();
+      let imageUrl: string | undefined;
+
+      // Upload image if provided
+      if (imageFile && coupleId) {
+        const fileName = `${coupleId}/${Date.now()}-${imageFile.name}`;
+        const { error: uploadError } = await sb.storage
+          .from("memories")
+          .upload(fileName, imageFile);
+        if (!uploadError) {
+          const { data } = sb.storage.from("memories").getPublicUrl(fileName);
+          imageUrl = data.publicUrl;
+        }
+      }
+
+      const res = await sb
+        .from("memories")
+        .insert({
+          couple_id: coupleId!,
+          text,
+          memory_date: memoryDateISO,
+          tags,
+          image_url: imageUrl ?? null,
+        })
+        .select("*")
+        .single();
+      const data = res.data as MemoryRow | null;
+      if (res.error || !data) return;
+      setState((s) => ({
+        ...s,
+        memories: [
+          {
+            id: data.id,
+            text: data.text,
+            imageUrl: data.image_url ?? undefined,
+            tags: (data.tags ?? []) as any,
+            memoryDateISO: data.memory_date,
+            createdISO: data.created_at,
+          },
+          ...s.memories,
+        ],
+      }));
+    },
+    [coupleId, supabaseRequired]
+  );
+
+  const removeMemory = useCallback<StoreValue["removeMemory"]>(
+    async (id) => {
+      const sb = supabaseRequired();
+      await sb.from("memories").delete().eq("id", id);
+      setState((s) => ({
+        ...s,
+        memories: s.memories.filter((m) => m.id !== id),
+      }));
+    },
+    [supabaseRequired]
+  );
+
   const refresh = useCallback(async () => {
     await fetchAllRef.current();
   }, []);
@@ -1039,6 +1131,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       logImmaturity,
       removeImmaturity,
       logKindAct,
+      addMemory,
+      removeMemory,
       refresh,
     }),
     [
@@ -1068,6 +1162,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       logImmaturity,
       removeImmaturity,
       logKindAct,
+      addMemory,
+      removeMemory,
       refresh,
     ]
   );

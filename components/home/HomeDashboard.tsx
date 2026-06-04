@@ -7,6 +7,7 @@ import { ImmaturityCounterCard } from "./ImmaturityCounterCard";
 import { LastKindActCard } from "./LastKindActCard";
 import { TodayMoodCard } from "./TodayMoodCard";
 import { EngagementTimerCard } from "./EngagementTimerCard";
+import { MemoryJarCard } from "./MemoryJarCard";
 import { QuickActions } from "./QuickActions";
 
 export function HomeDashboard() {
@@ -27,6 +28,8 @@ export function HomeDashboard() {
       <TodayMoodCard />
 
       <LastKindActCard />
+
+      <MemoryJarCard />
 
       <QuickActions />
     </div>
