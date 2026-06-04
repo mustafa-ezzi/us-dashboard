@@ -86,11 +86,11 @@ export interface KindAct {
   createdISO: string;
 }
 
-export type MemoryTag = 
-  | "First Times" 
-  | "Fights We Survived" 
-  | "Laughed Hard" 
-  | "Dates" 
+export type MemoryTag =
+  | "First Times"
+  | "Fights We Survived"
+  | "Laughed Hard"
+  | "Dates"
   | "Special Moments"
   | "Milestones"
   | "Adventures"
