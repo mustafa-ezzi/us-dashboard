@@ -2,14 +2,14 @@
 
 import { useStore } from "@/lib/store";
 import type { Partner } from "@/lib/types";
-import { ChevronDown, Plus, Sparkles } from "lucide-react";
+import { ChevronDown, Plus, Sparkles, Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Modal } from "@/components/ui/Modal";
 import { formatDistanceToNow } from "date-fns";
 import { cn } from "@/lib/utils";
 
 export function ImmaturityCounterCard({ him }: { him: Partner }) {
-  const { state, logImmaturity } = useStore();
+  const { state, logImmaturity, removeImmaturity } = useStore();
   const [open, setOpen] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
   const [note, setNote] = useState("");
@@ -74,20 +74,29 @@ export function ImmaturityCounterCard({ him }: { him: Partner }) {
               {recent.map((entry) => (
                 <li
                   key={entry.id}
-                  className="rounded-lg border border-line bg-white px-2.5 py-2 text-[11px]"
+                  className="flex items-start justify-between gap-2 rounded-lg border border-line bg-white px-2.5 py-2 text-[11px]"
                 >
-                  <p className="font-medium text-ink">
-                    {him.emoji} {him.name}
-                    <span className="ml-1 font-normal text-ink-subtle">
-                      ·{" "}
-                      {formatDistanceToNow(new Date(entry.createdISO), {
-                        addSuffix: true,
-                      })}
-                    </span>
-                  </p>
-                  {entry.note && (
-                    <p className="mt-0.5 text-ink-soft">"{entry.note}"</p>
-                  )}
+                  <div className="flex-1">
+                    <p className="font-medium text-ink">
+                      {him.emoji} {him.name}
+                      <span className="ml-1 font-normal text-ink-subtle">
+                        ·{" "}
+                        {formatDistanceToNow(new Date(entry.createdISO), {
+                          addSuffix: true,
+                        })}
+                      </span>
+                    </p>
+                    {entry.note && (
+                      <p className="mt-0.5 text-ink-soft">"{entry.note}"</p>
+                    )}
+                  </div>
+                  <button
+                    onClick={() => removeImmaturity(entry.id)}
+                    className="flex-shrink-0 rounded p-1 text-ink-muted hover:bg-rose-50 hover:text-rose transition"
+                    aria-label="Delete immaturity entry"
+                  >
+                    <Trash2 size={12} />
+                  </button>
                 </li>
               ))}
             </ul>

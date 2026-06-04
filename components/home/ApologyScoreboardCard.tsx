@@ -2,7 +2,7 @@
 
 import { useStore } from "@/lib/store";
 import type { Partner } from "@/lib/types";
-import { ChevronDown, Plus } from "lucide-react";
+import { ChevronDown, Plus, Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Modal } from "@/components/ui/Modal";
 import { formatDistanceToNow } from "date-fns";
@@ -15,7 +15,7 @@ export function ApologyScoreboardCard({
   her: Partner;
   him: Partner;
 }) {
-  const { state, partner, logApology } = useStore();
+  const { state, partner, logApology, removeApology } = useStore();
   const [open, setOpen] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
   const [note, setNote] = useState("");
@@ -98,20 +98,29 @@ export function ApologyScoreboardCard({
                 return (
                   <li
                     key={a.id}
-                    className="rounded-lg border border-line bg-white px-2.5 py-2 text-[11px]"
+                    className="flex items-start justify-between gap-2 rounded-lg border border-line bg-white px-2.5 py-2 text-[11px]"
                   >
-                    <p className="font-medium text-ink">
-                      {who.emoji} {who.name}
-                      <span className="ml-1 font-normal text-ink-subtle">
-                        ·{" "}
-                        {formatDistanceToNow(new Date(a.createdISO), {
-                          addSuffix: true,
-                        })}
-                      </span>
-                    </p>
-                    {a.note && (
-                      <p className="mt-0.5 text-ink-soft">"{a.note}"</p>
-                    )}
+                    <div className="flex-1">
+                      <p className="font-medium text-ink">
+                        {who.emoji} {who.name}
+                        <span className="ml-1 font-normal text-ink-subtle">
+                          ·{" "}
+                          {formatDistanceToNow(new Date(a.createdISO), {
+                            addSuffix: true,
+                          })}
+                        </span>
+                      </p>
+                      {a.note && (
+                        <p className="mt-0.5 text-ink-soft">"{a.note}"</p>
+                      )}
+                    </div>
+                    <button
+                      onClick={() => removeApology(a.id)}
+                      className="flex-shrink-0 rounded p-1 text-ink-muted hover:bg-rose-50 hover:text-rose transition"
+                      aria-label="Delete apology entry"
+                    >
+                      <Trash2 size={12} />
+                    </button>
                   </li>
                 );
               })}

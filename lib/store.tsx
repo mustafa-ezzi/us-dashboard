@@ -168,7 +168,9 @@ interface StoreValue {
   removeViolation: (id: string) => Promise<void>;
   // stats (apologizer / kind-act-by are auto-set to current partner)
   logApology: (note?: string) => Promise<void>;
+  removeApology: (id: string) => Promise<void>;
   logImmaturity: (note?: string) => Promise<void>;
+  removeImmaturity: (id: string) => Promise<void>;
   logKindAct: (text: string, by?: PartnerKey) => Promise<void>;
   // util
   refresh: () => Promise<void>;
@@ -951,6 +953,30 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     [coupleId, supabaseRequired]
   );
 
+  const removeImmaturity = useCallback<StoreValue["removeImmaturity"]>(
+    async (id) => {
+      const sb = supabaseRequired();
+      await sb.from("immaturity").delete().eq("id", id);
+      setState((s) => ({
+        ...s,
+        immaturity: s.immaturity.filter((i) => i.id !== id),
+      }));
+    },
+    [supabaseRequired]
+  );
+
+  const removeApology = useCallback<StoreValue["removeApology"]>(
+    async (id) => {
+      const sb = supabaseRequired();
+      await sb.from("apologies").delete().eq("id", id);
+      setState((s) => ({
+        ...s,
+        apologies: s.apologies.filter((a) => a.id !== id),
+      }));
+    },
+    [supabaseRequired]
+  );
+
   const logKindAct = useCallback<StoreValue["logKindAct"]>(
     async (text, by) => {
       const sb = supabaseRequired();
@@ -1009,7 +1035,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       addViolation,
       removeViolation,
       logApology,
+      removeApology,
       logImmaturity,
+      removeImmaturity,
       logKindAct,
       refresh,
     }),
@@ -1036,7 +1064,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       addViolation,
       removeViolation,
       logApology,
+      removeApology,
       logImmaturity,
+      removeImmaturity,
       logKindAct,
       refresh,
     ]

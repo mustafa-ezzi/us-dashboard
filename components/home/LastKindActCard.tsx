@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useStore } from "@/lib/store";
-import { Heart, Plus } from "lucide-react";
+import { Heart, Plus, ArrowRight } from "lucide-react";
 import { useState } from "react";
 import { Modal } from "@/components/ui/Modal";
 import { formatDistanceToNow } from "date-fns";
@@ -41,6 +41,11 @@ export function LastKindActCard() {
         {last && (
           <p className="mt-3 rounded-xl bg-rose-50 px-3 py-2 text-sm text-ink-soft group-hover:bg-rose-100 transition">
             "{last.text}"
+          </p>
+        )}
+        {state.kindActs.length > 0 && (
+          <p className="mt-2 flex items-center gap-1 text-[10px] text-rose-500 opacity-70 group-hover:opacity-100 transition">
+            Click to see full history <ArrowRight size={12} />
           </p>
         )}
       </Link>
