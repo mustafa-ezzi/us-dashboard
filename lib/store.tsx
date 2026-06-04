@@ -214,7 +214,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [ready, setReady] = useState(false);
 
   const fetchAllRef = useRef<(opts?: { silent?: boolean }) => Promise<void>>(
-    async () => {}
+    async () => { }
   );
 
   // ---------- Auth bootstrap ----------
