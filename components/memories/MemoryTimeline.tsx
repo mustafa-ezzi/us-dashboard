@@ -13,7 +13,10 @@ export function MemoryTimeline() {
 
     const memories = [...state.memories].sort(
         (a, b) => new Date(b.memoryDateISO).getTime() - new Date(a.memoryDateISO).getTime()
+        
     );
+    console.log(memories);
+    
 
     if (memories.length === 0) {
         return (
@@ -76,12 +79,12 @@ export function MemoryTimeline() {
                         {/* Tags */}
                         {memory.tags.length > 0 && (
                             <div className="mt-3 flex flex-wrap gap-1.5">
-                                {memory.tags.map((tag) => (
+                                {memory.tags.map((tags) => (
                                     <span
-                                        key={tag}
+                                        key={tags}
                                         className="inline-block rounded-full bg-rose-50 px-2.5 py-1 text-[10px] font-medium text-rose-700"
                                     >
-                                        {tag}
+                                        {tags}
                                     </span>
                                 ))}
                             </div>
