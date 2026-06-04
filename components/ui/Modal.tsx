@@ -47,8 +47,7 @@ export function Modal({
       />
       <div className="relative z-10 flex w-full max-w-md flex-col animate-pop-in sm:mx-4">
         {/* Bottom sheet on mobile, centered card on larger screens */}
-        <div className="mx-0 max-h-[min(88dvh,720px)] overflow-hidden rounded-t-3xl bg-white shadow-cardHover sm:mx-0 sm:rounded-3xl">
-          <div className="flex justify-center pt-2.5 sm:hidden">
+<div className="mx-0 flex max-h-[min(88dvh,720px)] flex-col overflow-hidden rounded-t-3xl bg-white shadow-cardHover sm:mx-0 sm:rounded-3xl">          <div className="flex justify-center pt-2.5 sm:hidden">
             <span className="h-1 w-10 rounded-full bg-line" aria-hidden />
           </div>
           <div className="flex items-center justify-between border-b border-line/60 px-5 pb-3 pt-2 sm:border-0 sm:pb-0 sm:pt-5">
