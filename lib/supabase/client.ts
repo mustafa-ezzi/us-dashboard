@@ -21,6 +21,7 @@ export function getSupabase(): SupabaseClient {
 
   _client = createClient(url, anon, {
     auth: {
+      storageKey: "us-dashboard-auth",
       persistSession: true,
       autoRefreshToken: true,
       detectSessionInUrl: false,

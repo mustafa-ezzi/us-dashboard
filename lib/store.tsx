@@ -10,7 +10,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import type { Session, User } from "@supabase/supabase-js";
+import type { AuthChangeEvent, Session, User } from "@supabase/supabase-js";
 import { getSupabase, hasSupabaseConfig } from "./supabase/client";
 import { notifyPartnerDatePlanned, notifyPartnerDateResponse } from "./push/client";
 import {
@@ -127,6 +127,7 @@ interface SecretMessageRow {
   created_by: PartnerKey;
   note: string;
   mood: string;
+  voice_url: string | null;
   created_at: string;
 }
 
@@ -203,6 +204,7 @@ interface StoreValue {
     time: string;
     note: string;
     mood: string;
+    voiceBlob?: Blob;
   }) => Promise<void>;
   removeSecretMessage: (id: string) => Promise<void>;
   // util
@@ -260,11 +262,11 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     let mounted = true;
     supabase.auth.getSession().then(({ data }) => {
       if (!mounted) return;
-      applySession(data.session);
+      applySession(data.session, "INITIAL_SESSION");
     });
 
-    const { data: sub } = supabase.auth.onAuthStateChange((_evt, session) => {
-      applySession(session);
+    const { data: sub } = supabase.auth.onAuthStateChange((evt, session) => {
+      applySession(session, evt);
     });
 
     return () => {
@@ -272,11 +274,17 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       sub.subscription.unsubscribe();
     };
 
-    function applySession(session: Session | null) {
+    function applySession(
+      session: Session | null,
+      event: AuthChangeEvent | "INITIAL_SESSION"
+    ) {
       if (session?.user) {
         setUser(session.user);
         setAuthStatus("signed-in");
-      } else {
+        return;
+      }
+
+      if (event === "SIGNED_OUT" || event === "INITIAL_SESSION") {
         setUser(null);
         setPartner(null);
         setCoupleId(null);
@@ -455,6 +463,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         createdBy: m.created_by,
         note: m.note,
         mood: m.mood,
+        voiceUrl: m.voice_url ?? undefined,
         createdISO: m.created_at,
       })),
       weeklyHealthScores: [],
@@ -621,7 +630,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   const signOut = useCallback(async () => {
     if (!configured) return;
-    await getSupabase().auth.signOut();
+    await getSupabase().auth.signOut({ scope: "local" });
   }, [configured]);
 
   const updatePartnerName = useCallback(
@@ -1144,8 +1153,27 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   );
 
   const addSecretMessage = useCallback<StoreValue["addSecretMessage"]>(
-    async ({ dateISO, time, note, mood }) => {
+    async ({ dateISO, time, note, mood, voiceBlob }) => {
       const sb = supabaseRequired();
+      let voiceUrl: string | undefined;
+
+      if (voiceBlob && coupleId) {
+        const ext = audioExtension(voiceBlob.type);
+        const fileName = `${coupleId}/${Date.now()}-${crypto.randomUUID()}.${ext}`;
+        const { error: uploadError } = await sb.storage
+          .from("secret-voice-notes")
+          .upload(fileName, voiceBlob, {
+            contentType: voiceBlob.type || "audio/webm",
+          });
+        if (uploadError) {
+          throw new Error(uploadError.message);
+        }
+        const { data } = sb.storage
+          .from("secret-voice-notes")
+          .getPublicUrl(fileName);
+        voiceUrl = data.publicUrl;
+      }
+
       const res = await sb
         .from("secret_messages")
         .insert({
@@ -1155,6 +1183,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           time,
           note,
           mood,
+          voice_url: voiceUrl ?? null,
         })
         .select("*")
         .single();
@@ -1173,6 +1202,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
             createdBy: data.created_by,
             note: data.note,
             mood: data.mood,
+            voiceUrl: data.voice_url ?? undefined,
             createdISO: data.created_at,
           },
           ...s.secretMessages,
@@ -1279,4 +1309,12 @@ export function useStore(): StoreValue {
     throw new Error("useStore must be used within a <StoreProvider>");
   }
   return ctx;
+}
+
+function audioExtension(type: string): string {
+  if (type.includes("mp4")) return "m4a";
+  if (type.includes("mpeg")) return "mp3";
+  if (type.includes("ogg")) return "ogg";
+  if (type.includes("wav")) return "wav";
+  return "webm";
 }

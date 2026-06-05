@@ -113,6 +113,7 @@ export interface SecretMessage {
   createdBy: PartnerKey;
   note: string;
   mood: string;
+  voiceUrl?: string;
   createdISO: string;
 }
 

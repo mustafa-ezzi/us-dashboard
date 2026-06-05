@@ -144,6 +144,7 @@ create table if not exists public.secret_messages (
   created_by partner_key not null,
   note text not null,
   mood text not null,
+  voice_url text,
   created_at timestamptz not null default now()
 );
 
@@ -230,6 +231,28 @@ create policy "delete own secret messages" on public.secret_messages
 
 create index if not exists secret_messages_couple_date_idx
   on public.secret_messages (couple_id, date_iso desc, time desc);
+
+insert into storage.buckets (id, name, public)
+values ('secret-voice-notes', 'secret-voice-notes', true)
+on conflict (id) do nothing;
+
+drop policy if exists "secret_voice_notes_upload" on storage.objects;
+create policy "secret_voice_notes_upload" on storage.objects for insert
+  with check (
+    bucket_id = 'secret-voice-notes'
+    and auth.role() = 'authenticated'
+  );
+
+drop policy if exists "secret_voice_notes_read" on storage.objects;
+create policy "secret_voice_notes_read" on storage.objects for select
+  using (bucket_id = 'secret-voice-notes');
+
+drop policy if exists "secret_voice_notes_delete" on storage.objects;
+create policy "secret_voice_notes_delete" on storage.objects for delete
+  using (
+    bucket_id = 'secret-voice-notes'
+    and auth.role() = 'authenticated'
+  );
 
 -- =========================================================
 -- Seed couple — edit the two emails below before running.

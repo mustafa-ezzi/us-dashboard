@@ -1,8 +1,20 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { format } from "date-fns";
-import { CalendarDays, Clock, Lock, Plus, Send, Sparkles, Trash2 } from "lucide-react";
+import {
+  CalendarDays,
+  Clock,
+  Lock,
+  Mic,
+  Play,
+  Plus,
+  Send,
+  Sparkles,
+  Square,
+  Trash2,
+  X,
+} from "lucide-react";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { useConfirmDialog } from "@/components/ui/useConfirmDialog";
@@ -26,6 +38,8 @@ export function SecretMessagesScreen() {
   const [time, setTime] = useState(currentTime());
   const [mood, setMood] = useState(moodOptions[0]);
   const [note, setNote] = useState("");
+  const [voiceBlob, setVoiceBlob] = useState<Blob | undefined>();
+  const [voicePreviewUrl, setVoicePreviewUrl] = useState<string | undefined>();
   const [busy, setBusy] = useState(false);
 
   const { mine, partnerMessages } = useMemo(() => {
@@ -43,7 +57,19 @@ export function SecretMessagesScreen() {
     setTime(currentTime());
     setMood(moodOptions[0]);
     setNote("");
+    setVoiceBlob(undefined);
   };
+
+  useEffect(() => {
+    if (!voiceBlob) {
+      setVoicePreviewUrl(undefined);
+      return;
+    }
+
+    const url = URL.createObjectURL(voiceBlob);
+    setVoicePreviewUrl(url);
+    return () => URL.revokeObjectURL(url);
+  }, [voiceBlob]);
 
   return (
     <div>
@@ -108,13 +134,19 @@ export function SecretMessagesScreen() {
           maxLength={1200}
         />
 
+        <VoiceRecorder
+          voicePreviewUrl={voicePreviewUrl}
+          onRecorded={setVoiceBlob}
+          onRemove={() => setVoiceBlob(undefined)}
+        />
+
         <div className="mt-4 flex gap-2">
           <button className="btn-ghost flex-1" onClick={reset} disabled={busy}>
             Reset
           </button>
           <button
             className="btn-primary flex-1"
-            disabled={!note.trim() || !dateISO || !time || busy}
+            disabled={(!note.trim() && !voiceBlob) || !dateISO || !time || busy}
             onClick={async () => {
               setBusy(true);
               try {
@@ -123,6 +155,7 @@ export function SecretMessagesScreen() {
                   time,
                   mood,
                   note: note.trim(),
+                  voiceBlob,
                 });
                 reset();
               } finally {
@@ -206,8 +239,17 @@ function MessageSection({
                   </div>
 
                   <p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-ink">
-                    {message.note}
+                    {message.note || "Voice note"}
                   </p>
+
+                  {message.voiceUrl && (
+                    <audio
+                      className="mt-3 w-full"
+                      controls
+                      preload="metadata"
+                      src={message.voiceUrl}
+                    />
+                  )}
 
                   <div className="mt-3 flex flex-wrap gap-x-3 gap-y-1 text-xs text-ink-muted">
                     <span className="inline-flex items-center gap-1">
@@ -251,6 +293,124 @@ function MessageSection({
   );
 }
 
+function VoiceRecorder({
+  voicePreviewUrl,
+  onRecorded,
+  onRemove,
+}: {
+  voicePreviewUrl?: string;
+  onRecorded: (blob: Blob) => void;
+  onRemove: () => void;
+}) {
+  const recorderRef = useRef<MediaRecorder | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const chunksRef = useRef<Blob[]>([]);
+  const [recording, setRecording] = useState(false);
+  const [recordingSeconds, setRecordingSeconds] = useState(0);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!recording) return;
+    const timer = window.setInterval(() => {
+      setRecordingSeconds((seconds) => seconds + 1);
+    }, 1000);
+    return () => window.clearInterval(timer);
+  }, [recording]);
+
+  useEffect(() => {
+    return () => {
+      streamRef.current?.getTracks().forEach((track) => track.stop());
+    };
+  }, []);
+
+  const startRecording = async () => {
+    setError(null);
+
+    if (!navigator.mediaDevices?.getUserMedia || !window.MediaRecorder) {
+      setError("Voice recording is not supported in this browser.");
+      return;
+    }
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      streamRef.current = stream;
+      chunksRef.current = [];
+
+      const recorder = new MediaRecorder(stream, {
+        mimeType: preferredAudioMimeType(),
+      });
+      recorderRef.current = recorder;
+      recorder.ondataavailable = (event) => {
+        if (event.data.size > 0) chunksRef.current.push(event.data);
+      };
+      recorder.onstop = () => {
+        const blob = new Blob(chunksRef.current, {
+          type: recorder.mimeType || "audio/webm",
+        });
+        stream.getTracks().forEach((track) => track.stop());
+        streamRef.current = null;
+        recorderRef.current = null;
+        setRecording(false);
+        if (blob.size > 0) onRecorded(blob);
+      };
+
+      setRecordingSeconds(0);
+      setRecording(true);
+      recorder.start();
+    } catch {
+      setError("Microphone permission was blocked.");
+    }
+  };
+
+  const stopRecording = () => {
+    recorderRef.current?.stop();
+  };
+
+  return (
+    <div className="mt-3 rounded-2xl border border-line bg-rose-50/40 p-3">
+      <div className="flex items-center justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-sm font-medium text-ink">Voice note</p>
+          <p className="text-xs text-ink-muted">
+            {recording ? `Recording ${formatDuration(recordingSeconds)}` : "Record from your mic."}
+          </p>
+        </div>
+
+        {recording ? (
+          <button type="button" className="btn-ghost !px-3 !py-2" onClick={stopRecording}>
+            <Square size={14} />
+            Stop
+          </button>
+        ) : (
+          <button type="button" className="btn-ghost !px-3 !py-2" onClick={startRecording}>
+            <Mic size={14} />
+            Record
+          </button>
+        )}
+      </div>
+
+      {voicePreviewUrl && !recording && (
+        <div className="mt-3 flex items-center gap-2">
+          <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-white text-rose">
+            <Play size={15} />
+          </span>
+          <audio className="min-w-0 flex-1" controls preload="metadata" src={voicePreviewUrl} />
+          <button
+            type="button"
+            className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-white text-ink-subtle hover:text-rose"
+            aria-label="Remove voice note"
+            onClick={onRemove}
+          >
+            <X size={16} />
+          </button>
+        </div>
+      )}
+
+      {error && <p className="mt-2 text-xs text-rose-700">{error}</p>}
+    </div>
+  );
+}
+
 function unlockDate(dateISO: string): Date {
   const [year, month] = dateISO.split("-").map(Number);
   return new Date(year, month, 1);
@@ -274,4 +434,15 @@ function formatTime12h(time: string): string {
   const period = h >= 12 ? "PM" : "AM";
   const hour12 = h % 12 || 12;
   return `${hour12}:${String(m).padStart(2, "0")} ${period}`;
+}
+
+function preferredAudioMimeType(): string | undefined {
+  const options = ["audio/webm;codecs=opus", "audio/webm", "audio/mp4"];
+  return options.find((type) => MediaRecorder.isTypeSupported(type));
+}
+
+function formatDuration(seconds: number): string {
+  const minutes = Math.floor(seconds / 60);
+  const remaining = seconds % 60;
+  return `${minutes}:${String(remaining).padStart(2, "0")}`;
 }
