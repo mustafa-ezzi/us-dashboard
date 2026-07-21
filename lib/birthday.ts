@@ -5,13 +5,6 @@ export const BIRTHDAY = {
   name: "Ummehani",
 } as const;
 
-export const ENGAGEMENT_NOTE = {
-  headline: "Happy Engagement Day",
-  subhead: "Today gets its own little opening scene.",
-  about: `This dashboard keeps track of the ordinary things, but today is not ordinary. Today is the day the plan became real, the promise got a date, and the future started feeling less abstract.`,
-  fromMustafa: `I want this day to feel remembered, not rushed past. Thank you for being the person I get to build toward, one honest check-in and one intentional day at a time.`,
-} as const;
-
 /**
  * Splash shows on every app open while enabled.
  * After her birthday, set in Vercel + .env.local:
@@ -28,8 +21,6 @@ export function isEngagementSplashEnabled(
   if (!engagementISO) return false;
   return engagementISO.slice(0, 10) === todayKey();
 }
-
-export type SplashOccasion = "birthday" | "engagement";
 
 export const BIRTHDAY_NOTE = {
   headline: "Happy Birthday, Ummehani",

@@ -6,6 +6,7 @@ import { TopBar } from "./TopBar";
 import { BottomNav } from "./BottomNav";
 import { LoginScreen } from "./auth/LoginScreen";
 import { BirthdaySplash } from "./birthday/BirthdaySplash";
+import { EngagementSplash } from "./birthday/EngagementSplash";
 import {
   isBirthdaySplashEnabled,
   isEngagementSplashEnabled,
@@ -41,8 +42,8 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <>
-      {showEngagementSplash && <BirthdaySplash occasion="engagement" />}
-      {showBirthdaySplash && <BirthdaySplash occasion="birthday" />}
+      {showEngagementSplash && <EngagementSplash />}
+      {showBirthdaySplash && <BirthdaySplash />}
       <div className="mx-auto flex min-h-screen w-full max-w-md flex-col bg-cream">
         <TopBar />
         <main className="flex-1 px-4 pb-28 pt-4">
