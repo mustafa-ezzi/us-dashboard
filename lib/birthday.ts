@@ -15,12 +15,20 @@ export function isBirthdaySplashEnabled(): boolean {
   return process.env.NEXT_PUBLIC_BIRTHDAY_SPLASH !== "false";
 }
 
-export function isEngagementSplashEnabled(
+/** True when today's calendar date matches the stored engagement day. */
+export function isEngagementDay(
   engagementISO: string | null | undefined
 ): boolean {
   if (!engagementISO) return false;
   return engagementISO.slice(0, 10) === todayKey();
 }
+
+export const ENGAGEMENT_NOTE = {
+  headline: "Happy Engagement Day",
+  subhead: "Your world. Just the two of you.",
+  about: `This dashboard keeps track of the ordinary things, but today is not ordinary. Today is the day the plan became real, the promise got a date, and the future started feeling less abstract.`,
+  fromMustafa: `I want this day to feel remembered, not rushed past. Thank you for being the person I get to build toward, one honest check-in and one intentional day at a time.`,
+} as const;
 
 export const BIRTHDAY_NOTE = {
   headline: "Happy Birthday, Ummehani",

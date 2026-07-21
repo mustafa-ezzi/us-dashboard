@@ -4,11 +4,51 @@
 
 :root {
   color-scheme: light;
-  --rose: #E91E8C;
-  --rose-50: #FDF2F8;
-  --rose-100: #FCE4EC;
-  --ink: #2D2D2D;
-  --cream: #FFF9FB;
+  /* Default rose / cream (space-separated RGB for Tailwind alpha support) */
+  --rose-rgb: 233 30 140;
+  --rose-50-rgb: 253 242 248;
+  --rose-100-rgb: 252 228 236;
+  --rose-200-rgb: 251 207 224;
+  --rose-300-rgb: 249 168 200;
+  --rose-400-rgb: 244 114 168;
+  --rose-600-rgb: 200 22 122;
+  --rose-700-rgb: 161 18 96;
+  --rose-800-rgb: 122 14 72;
+  --rose-900-rgb: 83 9 49;
+  --cream-rgb: 255 249 251;
+  --line-rgb: 241 227 234;
+  --ink: #2d2d2d;
+  --cream: rgb(var(--cream-rgb));
+  --rose: rgb(var(--rose-rgb));
+  --rose-50: rgb(var(--rose-50-rgb));
+  --rose-100: rgb(var(--rose-100-rgb));
+}
+
+/* Engagement day — sky blue surface + hot pink accents */
+html[data-theme="engagement"] {
+  --rose-rgb: 255 0 110;
+  --rose-50-rgb: 232 247 255;
+  --rose-100-rgb: 186 230 253;
+  --rose-200-rgb: 255 163 204;
+  --rose-300-rgb: 255 112 176;
+  --rose-400-rgb: 255 77 154;
+  --rose-600-rgb: 224 0 95;
+  --rose-700-rgb: 184 0 77;
+  --rose-800-rgb: 140 0 58;
+  --rose-900-rgb: 96 0 40;
+  --cream-rgb: 232 247 255;
+  --line-rgb: 186 230 253;
+  --cream: rgb(var(--cream-rgb));
+  --rose: rgb(var(--rose-rgb));
+  --rose-50: rgb(var(--rose-50-rgb));
+  --rose-100: rgb(var(--rose-100-rgb));
+}
+
+html[data-theme="engagement"] ::-webkit-scrollbar-thumb {
+  background: #7dd3fc;
+}
+html[data-theme="engagement"] ::-webkit-scrollbar-thumb:hover {
+  background: #38bdf8;
 }
 
 html,

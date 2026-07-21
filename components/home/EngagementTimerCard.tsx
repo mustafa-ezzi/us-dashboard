@@ -2,21 +2,23 @@
 
 import { useEffect, useState } from "react";
 import { useStore } from "@/lib/store";
+import { isEngagementDay } from "@/lib/birthday";
 import { timeUntilDate } from "@/lib/utils";
 import { format } from "date-fns";
-import { Gem } from "lucide-react";
+import { Gem, Heart, Sparkles } from "lucide-react";
 import Link from "next/link";
 
 export function EngagementTimerCard() {
   const { state } = useStore();
   const engagementISO = state.settings.engagementISO;
   const [now, setNow] = useState(() => new Date());
+  const todayIsTheDay = isEngagementDay(engagementISO);
 
   useEffect(() => {
-    if (!engagementISO) return;
+    if (!engagementISO || todayIsTheDay) return;
     const id = setInterval(() => setNow(new Date()), 1000);
     return () => clearInterval(id);
-  }, [engagementISO]);
+  }, [engagementISO, todayIsTheDay]);
 
   if (!engagementISO) {
     return (
@@ -44,6 +46,35 @@ export function EngagementTimerCard() {
   }
 
   const target = format(new Date(engagementISO), "MMM d, yyyy");
+
+  if (todayIsTheDay) {
+    return (
+      <section className="card overflow-hidden">
+        <div className="relative bg-gradient-to-br from-sky-500 via-[#FF006E] to-rose px-5 py-6 text-white">
+          <div className="absolute -right-6 -top-6 h-28 w-28 rounded-full bg-white/15 blur-2xl" />
+          <div className="absolute -bottom-8 -left-4 h-24 w-24 rounded-full bg-sky-300/30 blur-2xl" />
+          <div className="relative">
+            <p className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-[0.18em] text-white/85">
+              <Sparkles size={12} />
+              It&apos;s today
+            </p>
+            <p className="mt-2 text-2xl font-semibold leading-tight">
+              Happy Engagement Day
+            </p>
+            <p className="mt-2 text-sm text-white/90">
+              The countdown is over. The promise has a date — and the date is
+              today.
+            </p>
+            <p className="mt-3 flex items-center gap-1.5 text-xs text-white/75">
+              <Heart size={12} className="fill-white/80" />
+              Planned for {target}
+            </p>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   const remaining = timeUntilDate(engagementISO, now);
 
   if (!remaining) {
@@ -69,7 +100,7 @@ export function EngagementTimerCard() {
   return (
     <section className="card overflow-hidden">
       <div className="relative bg-gradient-to-br from-rose-700 to-rose px-5 py-5 text-white">
-        <div className="absolute -left-4 -bottom-4 h-28 w-28 rounded-full bg-white/10 blur-2xl" />
+        <div className="absolute -bottom-4 -left-4 h-28 w-28 rounded-full bg-white/10 blur-2xl" />
         <div className="relative flex items-start justify-between">
           <div>
             <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-white/80">

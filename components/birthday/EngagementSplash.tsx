@@ -4,8 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { motion } from "framer-motion";
 import { Heart } from "lucide-react";
-
-const SEEN_KEY = "seen_splash";
+import { ENGAGEMENT_NOTE } from "@/lib/birthday";
 
 type Particle = {
   id: number;
@@ -42,25 +41,19 @@ export function EngagementSplash() {
       clearTimeout(autoTimerRef.current);
       autoTimerRef.current = null;
     }
-    localStorage.setItem(SEEN_KEY, "true");
     setLeaving(true);
     setTimeout(() => setVisible(false), 480);
   };
 
   useEffect(() => {
     setMounted(true);
-
-    if (localStorage.getItem(SEEN_KEY)) {
-      return;
-    }
-
     setVisible(true);
 
+    // Extra time so the note can be read; still auto-continues
     autoTimerRef.current = setTimeout(() => {
-      localStorage.setItem(SEEN_KEY, "true");
       setLeaving(true);
       setTimeout(() => setVisible(false), 480);
-    }, 4500);
+    }, 12000);
 
     return () => {
       if (autoTimerRef.current) clearTimeout(autoTimerRef.current);
@@ -72,14 +65,13 @@ export function EngagementSplash() {
   return createPortal(
     <div
       className={
-        "fixed inset-0 z-[200] min-h-[100dvh] w-full flex flex-col items-center justify-center overflow-hidden bg-[#050A2E] " +
+        "fixed inset-0 z-[200] flex min-h-[100dvh] w-full flex-col items-center justify-center overflow-y-auto overflow-x-hidden bg-[#050A2E] " +
         (leaving ? "animate-splash-out" : "animate-splash-in")
       }
       role="dialog"
       aria-modal="true"
-      aria-label="Welcome splash"
+      aria-label="Engagement day splash"
     >
-      {/* === ANIMATED GRADIENT BACKGROUND === */}
       <div className="absolute inset-0 z-0">
         <motion.div
           animate={{
@@ -95,8 +87,7 @@ export function EngagementSplash() {
         />
       </div>
 
-      {/* === BOKEH / FLOATING PARTICLES === */}
-      <div className="absolute inset-0 z-0 opacity-50 pointer-events-none">
+      <div className="pointer-events-none absolute inset-0 z-0 opacity-50">
         {particles.map((p) => (
           <motion.div
             key={p.id}
@@ -123,14 +114,12 @@ export function EngagementSplash() {
         ))}
       </div>
 
-      {/* === MAIN CONTENT === */}
-      <div className="z-10 flex flex-col items-center text-center px-6 w-full max-w-sm">
-        {/* Animated Infinity Heart SVG */}
+      <div className="z-10 flex w-full max-w-sm flex-col items-center px-6 py-[max(1.5rem,env(safe-area-inset-top))] pb-[max(1.5rem,env(safe-area-inset-bottom))] text-center">
         <motion.div
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 1, ease: "easeOut", delay: 0.2 }}
-          className="relative mb-8"
+          transition={{ duration: 1, ease: "easeOut", delay: 0.15 }}
+          className="relative mb-6"
         >
           <svg
             width="120"
@@ -148,47 +137,87 @@ export function EngagementSplash() {
               strokeLinejoin="round"
               initial={{ pathLength: 0 }}
               animate={{ pathLength: 1 }}
-              transition={{ duration: 2, ease: "easeInOut", delay: 0.5 }}
+              transition={{ duration: 2, ease: "easeInOut", delay: 0.4 }}
             />
           </svg>
         </motion.div>
 
-        {/* Logo Wordmark */}
+        <motion.p
+          initial={{ y: 12, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.6, delay: 0.7 }}
+          className="mb-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#7DD3FC]"
+        >
+          Engagement Day
+        </motion.p>
+
         <motion.h1
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.8, delay: 1 }}
-          className="text-6xl font-extrabold tracking-tighter text-white mb-4 drop-shadow-md"
+          transition={{ duration: 0.8, delay: 0.9 }}
+          className="mb-2 text-5xl font-extrabold tracking-tighter text-white drop-shadow-md"
           style={{ textShadow: "0 0 20px rgba(255,255,255,0.3)" }}
         >
           us.
         </motion.h1>
 
-        {/* Tagline */}
-        <motion.p
-          initial={{ y: 20, opacity: 0 }}
+        <motion.h2
+          initial={{ y: 16, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.8, delay: 1.4 }}
-          className="text-lg text-blue-200/80 mb-12 font-medium tracking-wide"
+          transition={{ duration: 0.7, delay: 1.15 }}
+          className="mb-2 text-xl font-semibold text-white"
         >
-          Your world. Just the two of you.
+          {ENGAGEMENT_NOTE.headline}
+        </motion.h2>
+
+        <motion.p
+          initial={{ y: 16, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.7, delay: 1.35 }}
+          className="mb-6 text-base font-medium tracking-wide text-blue-200/80"
+        >
+          {ENGAGEMENT_NOTE.subhead}
         </motion.p>
 
-        {/* CTA Button with shimmer */}
+        <motion.div
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.7, delay: 1.55 }}
+          className="mb-4 w-full rounded-2xl border border-white/15 bg-white/5 p-4 text-left backdrop-blur-sm"
+        >
+          <p className="text-[14px] leading-relaxed text-blue-50/95">
+            {ENGAGEMENT_NOTE.about}
+          </p>
+        </motion.div>
+
+        <motion.div
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.7, delay: 1.75 }}
+          className="mb-8 w-full rounded-2xl border border-[#FF006E]/30 bg-[#FF006E]/10 p-4 text-left backdrop-blur-sm"
+        >
+          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#FF4DB3]">
+            From Mustafa
+          </p>
+          <p className="mt-2 text-[14px] leading-relaxed text-white/95">
+            {ENGAGEMENT_NOTE.fromMustafa}
+          </p>
+        </motion.div>
+
         <motion.button
           type="button"
           initial={{ y: 30, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.8, delay: 2.2 }}
+          transition={{ duration: 0.8, delay: 2.1 }}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={dismiss}
-          className="relative overflow-hidden group px-8 py-4 rounded-full bg-[#FF006E] text-white font-bold text-lg shadow-[0_0_20px_rgba(255,0,110,0.4)] transition-shadow hover:shadow-[0_0_30px_rgba(255,0,110,0.6)]"
+          className="group relative overflow-hidden rounded-full bg-[#FF006E] px-8 py-4 text-lg font-bold text-white shadow-[0_0_20px_rgba(255,0,110,0.4)] transition-shadow hover:shadow-[0_0_30px_rgba(255,0,110,0.6)]"
         >
           <span className="relative z-10 flex items-center gap-2">
-            Get Started <Heart size={20} className="fill-white" />
+            Open your day <Heart size={20} className="fill-white" />
           </span>
-          <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/40 to-transparent group-hover:animate-splash-shimmer pointer-events-none" />
+          <div className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/40 to-transparent group-hover:animate-splash-shimmer" />
         </motion.button>
       </div>
     </div>,

@@ -9,19 +9,19 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Brand palette from PRD §4.2
+        // Brand palette — CSS vars so engagement day can retheme the app
         rose: {
-          DEFAULT: "#E91E8C", // primary
-          50: "#FDF2F8",
-          100: "#FCE4EC",
-          200: "#FBCFE0",
-          300: "#F9A8C8",
-          400: "#F472A8",
-          500: "#E91E8C",
-          600: "#C8167A",
-          700: "#A11260",
-          800: "#7A0E48",
-          900: "#530931",
+          DEFAULT: "rgb(var(--rose-rgb) / <alpha-value>)",
+          50: "rgb(var(--rose-50-rgb) / <alpha-value>)",
+          100: "rgb(var(--rose-100-rgb) / <alpha-value>)",
+          200: "rgb(var(--rose-200-rgb) / <alpha-value>)",
+          300: "rgb(var(--rose-300-rgb) / <alpha-value>)",
+          400: "rgb(var(--rose-400-rgb) / <alpha-value>)",
+          500: "rgb(var(--rose-rgb) / <alpha-value>)",
+          600: "rgb(var(--rose-600-rgb) / <alpha-value>)",
+          700: "rgb(var(--rose-700-rgb) / <alpha-value>)",
+          800: "rgb(var(--rose-800-rgb) / <alpha-value>)",
+          900: "rgb(var(--rose-900-rgb) / <alpha-value>)",
         },
         ink: {
           DEFAULT: "#2D2D2D",
@@ -29,8 +29,8 @@ const config: Config = {
           muted: "#6B6B6B",
           subtle: "#9A9A9A",
         },
-        cream: "#FFF9FB",
-        line: "#F1E3EA",
+        cream: "rgb(var(--cream-rgb) / <alpha-value>)",
+        line: "rgb(var(--line-rgb) / <alpha-value>)",
       },
       fontFamily: {
         sans: [
@@ -44,9 +44,9 @@ const config: Config = {
         ],
       },
       boxShadow: {
-        card: "0 1px 2px rgba(45,45,45,0.04), 0 4px 16px rgba(233,30,140,0.06)",
+        card: "0 1px 2px rgba(45,45,45,0.04), 0 4px 16px rgb(var(--rose-rgb) / 0.06)",
         cardHover:
-          "0 2px 4px rgba(45,45,45,0.06), 0 8px 24px rgba(233,30,140,0.10)",
+          "0 2px 4px rgba(45,45,45,0.06), 0 8px 24px rgb(var(--rose-rgb) / 0.10)",
       },
       borderRadius: {
         xl: "14px",
