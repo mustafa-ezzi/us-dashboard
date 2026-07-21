@@ -1,10 +1,14 @@
 "use client";
 
 import { useStore } from "@/lib/store";
-import { isEngagementDay } from "@/lib/birthday";
+import { isEngagementDay, ENGAGEMENT_DAY_ROMANCE } from "@/lib/birthday";
 import { DaysTogetherCard } from "./DaysTogetherCard";
 import { ApologyScoreboardCard } from "./ApologyScoreboardCard";
 import { ImmaturityCounterCard } from "./ImmaturityCounterCard";
+import {
+  EngagementRomanceCards,
+  EngagementRomanceExtras,
+} from "./EngagementRomanceCards";
 import { LastKindActCard } from "./LastKindActCard";
 import { TodayMoodCard } from "./TodayMoodCard";
 import { EngagementTimerCard } from "./EngagementTimerCard";
@@ -23,11 +27,10 @@ export function HomeDashboard() {
         <section className="rounded-2xl border border-secondary/30 bg-secondary-50 px-4 py-3">
           <p className="flex items-center gap-2 text-sm font-semibold text-secondary">
             <Heart size={16} className="fill-secondary text-secondary" />
-            Light sky &amp; hot pink — just for today
+            {ENGAGEMENT_DAY_ROMANCE.bannerTitle}
           </p>
           <p className="mt-1 text-xs leading-relaxed text-ink-soft">
-            Primary sky blue, secondary hot pink. Tomorrow the usual rose
-            returns.
+            {ENGAGEMENT_DAY_ROMANCE.bannerBody}
           </p>
         </section>
       )}
@@ -36,10 +39,17 @@ export function HomeDashboard() {
 
       <EngagementTimerCard />
 
-      <div className="grid grid-cols-2 gap-3">
-        <ApologyScoreboardCard her={her} him={him} />
-        <ImmaturityCounterCard him={him} />
-      </div>
+      {engagementDay ? (
+        <>
+          <EngagementRomanceCards />
+          <EngagementRomanceExtras />
+        </>
+      ) : (
+        <div className="grid grid-cols-2 gap-3">
+          <ApologyScoreboardCard her={her} him={him} />
+          <ImmaturityCounterCard him={him} />
+        </div>
+      )}
 
       <TodayMoodCard />
 
