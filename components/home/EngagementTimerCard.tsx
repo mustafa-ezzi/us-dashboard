@@ -6,7 +6,6 @@ import { isEngagementDay } from "@/lib/birthday";
 import { timeUntilDate } from "@/lib/utils";
 import { format } from "date-fns";
 import { Gem, Heart, Sparkles } from "lucide-react";
-import Link from "next/link";
 
 export function EngagementTimerCard() {
   const { state } = useStore();
@@ -30,14 +29,7 @@ export function EngagementTimerCard() {
           <div>
             <p className="stat-label">Engagement countdown</p>
             <p className="mt-1 text-sm text-ink-soft">
-              Set the day you plan to get engaged in{" "}
-              <Link
-                href="/settings"
-                className="font-semibold text-rose-700 underline-offset-2 hover:underline"
-              >
-                Settings
-              </Link>
-              .
+              No engagement date is set yet.
             </p>
           </div>
         </div>
@@ -84,12 +76,6 @@ export function EngagementTimerCard() {
           </p>
           <p className="mt-2 text-xl font-semibold">That day has arrived ✓</p>
           <p className="mt-1 text-sm text-white/80">Planned for {target}</p>
-          <Link
-            href="/settings"
-            className="mt-3 inline-block text-xs font-medium text-white underline-offset-2 hover:underline"
-          >
-            Update in Settings
-          </Link>
         </div>
       </section>
     );

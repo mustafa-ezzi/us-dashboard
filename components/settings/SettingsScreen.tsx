@@ -13,7 +13,6 @@ interface CoupleDraft {
   himName: string;
   himEmoji: string;
   anniversary: string;
-  engagement: string;
 }
 
 export function SettingsScreen() {
@@ -24,7 +23,6 @@ export function SettingsScreen() {
     updatePartnerName,
     updatePartnerEmoji,
     setAnniversary,
-    setEngagementDate,
     signOut,
     refresh,
   } = useStore();
@@ -39,7 +37,6 @@ export function SettingsScreen() {
     himName: state.settings.him.name,
     himEmoji: state.settings.him.emoji,
     anniversary: state.settings.anniversaryISO.slice(0, 10),
-    engagement: state.settings.engagementISO?.slice(0, 10) ?? "",
   }));
 
   useEffect(() => {
@@ -49,7 +46,6 @@ export function SettingsScreen() {
       himName: state.settings.him.name,
       himEmoji: state.settings.him.emoji,
       anniversary: state.settings.anniversaryISO.slice(0, 10),
-      engagement: state.settings.engagementISO?.slice(0, 10) ?? "",
     });
   }, [state.settings]);
 
@@ -63,8 +59,7 @@ export function SettingsScreen() {
     draft.herEmoji !== state.settings.her.emoji ||
     draft.himName !== state.settings.him.name ||
     draft.himEmoji !== state.settings.him.emoji ||
-    draft.anniversary !== state.settings.anniversaryISO.slice(0, 10) ||
-    draft.engagement !== (state.settings.engagementISO?.slice(0, 10) ?? "");
+    draft.anniversary !== state.settings.anniversaryISO.slice(0, 10);
 
   const saveCoupleSettings = async () => {
     setSaving(true);
@@ -84,15 +79,6 @@ export function SettingsScreen() {
       }
       if (draft.anniversary !== state.settings.anniversaryISO.slice(0, 10)) {
         await setAnniversary(new Date(draft.anniversary).toISOString());
-      }
-      const currentEngagement =
-        state.settings.engagementISO?.slice(0, 10) ?? "";
-      if (draft.engagement !== currentEngagement) {
-        await setEngagementDate(
-          draft.engagement
-            ? new Date(draft.engagement).toISOString()
-            : null
-        );
       }
       setMsg("Settings saved ✓");
     } catch {
@@ -193,30 +179,6 @@ export function SettingsScreen() {
             setDraft((d) => ({ ...d, anniversary: e.target.value }))
           }
         />
-
-        <label className="label mt-4 block">Planned engagement date</label>
-        <p className="mt-1 text-xs text-ink-muted">
-          The countdown on Home ticks down to this day. You&apos;re not engaged
-          yet — pick a future date.
-        </p>
-        <input
-          type="date"
-          className="input mt-1.5"
-          value={draft.engagement}
-          min={todayKey()}
-          onChange={(e) =>
-            setDraft((d) => ({ ...d, engagement: e.target.value }))
-          }
-        />
-        {draft.engagement && (
-          <button
-            type="button"
-            onClick={() => setDraft((d) => ({ ...d, engagement: "" }))}
-            className="mt-2 text-xs font-medium text-rose-700 underline-offset-2 hover:underline"
-          >
-            Clear engagement date
-          </button>
-        )}
 
         <button
           type="button"

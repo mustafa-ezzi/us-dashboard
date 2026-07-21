@@ -39,7 +39,7 @@ export const ENGAGEMENT_DAY_ROMANCE = {
   vow: "I choose you on the ordinary Tuesdays and on the days that rewrite the calendar. Today is one of those.",
   letterTitle: "A letter, just for today",
   letterEyebrow: "Tap to open",
-  letter: `Ummehani —
+  letter: `Ummehani 
 
 If this app usually measures moods and kind acts, today it gets to measure something quieter: how lucky I feel that the future has your name in it.
 
@@ -48,7 +48,7 @@ I don't need a perfect day. I need a true one — the kind where we laugh, get a
 Thank you for being my soft place and my brave place.
 Today belongs to us.
 
-— Mustafa`,
+ Mustafa/Saheli`,
   reasonsTitle: "Why this day feels like forever",
   reasons: [
     "You make ordinary plans feel like a life.",
