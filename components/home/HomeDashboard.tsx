@@ -20,14 +20,14 @@ export function HomeDashboard() {
   return (
     <div className="space-y-4 stagger-children">
       {engagementDay && (
-        <section className="overflow-hidden rounded-2xl border border-rose/25 bg-gradient-to-r from-sky-100 via-white to-rose-50 px-4 py-3 shadow-card">
-          <p className="flex items-center gap-2 text-sm font-semibold text-rose-700">
-            <Heart size={16} className="fill-rose text-rose" />
-            A day painted in sky blue &amp; hot pink
+        <section className="rounded-2xl border border-secondary/30 bg-secondary-50 px-4 py-3">
+          <p className="flex items-center gap-2 text-sm font-semibold text-secondary">
+            <Heart size={16} className="fill-secondary text-secondary" />
+            Light sky &amp; hot pink — just for today
           </p>
           <p className="mt-1 text-xs leading-relaxed text-ink-soft">
-            Every button, chip, and glow is dressed for engagement day. Tomorrow
-            the usual rose returns — today is yours.
+            Primary sky blue, secondary hot pink. Tomorrow the usual rose
+            returns.
           </p>
         </section>
       )}

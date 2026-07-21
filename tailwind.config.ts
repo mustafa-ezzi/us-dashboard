@@ -31,6 +31,11 @@ const config: Config = {
         },
         cream: "rgb(var(--cream-rgb) / <alpha-value>)",
         line: "rgb(var(--line-rgb) / <alpha-value>)",
+        secondary: {
+          DEFAULT: "rgb(var(--secondary-rgb) / <alpha-value>)",
+          50: "rgb(var(--secondary-50-rgb) / <alpha-value>)",
+          100: "rgb(var(--secondary-100-rgb) / <alpha-value>)",
+        },
       },
       fontFamily: {
         sans: [

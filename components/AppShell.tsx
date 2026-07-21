@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, type ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
 import Image from "next/image";
 import { TopBar } from "./TopBar";
 import { BottomNav } from "./BottomNav";
@@ -41,7 +41,6 @@ export function AppShell({ children }: { children: ReactNode }) {
       {engagementDay && <EngagementSplash />}
       {showBirthdaySplash && <BirthdaySplash />}
       <div className="relative mx-auto flex min-h-screen w-full max-w-md flex-col bg-cream transition-colors duration-500">
-        {engagementDay && <EngagementDayAtmosphere />}
         <TopBar engagementDay={engagementDay} />
         <main className="relative z-10 flex-1 px-4 pb-28 pt-4">
           <div className="animate-slide-up">{children}</div>
@@ -65,7 +64,7 @@ function EngagementDayChrome({
     if (active) {
       root.setAttribute("data-theme", "engagement");
       const meta = document.querySelector('meta[name="theme-color"]');
-      if (meta) meta.setAttribute("content", "#FF006E");
+      if (meta) meta.setAttribute("content", "#38BDF8");
     } else {
       root.removeAttribute("data-theme");
       const meta = document.querySelector('meta[name="theme-color"]');
@@ -77,48 +76,6 @@ function EngagementDayChrome({
   }, [active]);
 
   return <>{children}</>;
-}
-
-/** Soft floating orbs behind the dashboard on engagement day. */
-function EngagementDayAtmosphere() {
-  const orbs = useMemo(
-    () =>
-      Array.from({ length: 8 }, (_, i) => ({
-        id: i,
-        size: 48 + (i % 4) * 28,
-        left: `${(i * 13 + 5) % 90}%`,
-        top: `${(i * 17 + 8) % 75}%`,
-        duration: 10 + (i % 5) * 2,
-        delay: i * 0.4,
-        pink: i % 2 === 0,
-      })),
-    []
-  );
-
-  return (
-    <div
-      className="pointer-events-none absolute inset-0 z-0 overflow-hidden"
-      aria-hidden
-    >
-      {orbs.map((orb) => (
-        <span
-          key={orb.id}
-          className="absolute rounded-full opacity-40 blur-2xl animate-float"
-          style={{
-            width: orb.size,
-            height: orb.size,
-            left: orb.left,
-            top: orb.top,
-            animationDuration: `${orb.duration}s`,
-            animationDelay: `${orb.delay}s`,
-            background: orb.pink
-              ? "radial-gradient(circle, rgba(255,0,110,0.35), transparent 70%)"
-              : "radial-gradient(circle, rgba(14,165,233,0.4), transparent 70%)",
-          }}
-        />
-      ))}
-    </div>
-  );
 }
 
 function FullScreenLoader() {

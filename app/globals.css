@@ -22,26 +22,33 @@
   --rose: rgb(var(--rose-rgb));
   --rose-50: rgb(var(--rose-50-rgb));
   --rose-100: rgb(var(--rose-100-rgb));
+  /* Secondary accent (hot pink on engagement day; unused by default) */
+  --secondary-rgb: 233 30 140;
+  --secondary-50-rgb: 253 242 248;
+  --secondary-100-rgb: 252 228 236;
 }
 
-/* Engagement day — sky blue surface + hot pink accents */
+/* Engagement day — light sky primary, hot pink secondary (flat, no gradients) */
 html[data-theme="engagement"] {
-  --rose-rgb: 255 0 110;
-  --rose-50-rgb: 232 247 255;
-  --rose-100-rgb: 186 230 253;
-  --rose-200-rgb: 255 163 204;
-  --rose-300-rgb: 255 112 176;
-  --rose-400-rgb: 255 77 154;
-  --rose-600-rgb: 224 0 95;
-  --rose-700-rgb: 184 0 77;
-  --rose-800-rgb: 140 0 58;
-  --rose-900-rgb: 96 0 40;
-  --cream-rgb: 232 247 255;
+  --rose-rgb: 56 189 248;
+  --rose-50-rgb: 240 249 255;
+  --rose-100-rgb: 224 242 254;
+  --rose-200-rgb: 186 230 253;
+  --rose-300-rgb: 125 211 252;
+  --rose-400-rgb: 56 189 248;
+  --rose-600-rgb: 14 165 233;
+  --rose-700-rgb: 2 132 199;
+  --rose-800-rgb: 3 105 161;
+  --rose-900-rgb: 12 74 110;
+  --cream-rgb: 240 249 255;
   --line-rgb: 186 230 253;
   --cream: rgb(var(--cream-rgb));
   --rose: rgb(var(--rose-rgb));
   --rose-50: rgb(var(--rose-50-rgb));
   --rose-100: rgb(var(--rose-100-rgb));
+  --secondary-rgb: 255 0 110;
+  --secondary-50-rgb: 255 240 247;
+  --secondary-100-rgb: 255 209 229;
 }
 
 html[data-theme="engagement"] ::-webkit-scrollbar-thumb {

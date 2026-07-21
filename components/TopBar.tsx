@@ -43,7 +43,7 @@ export function TopBar({ engagementDay = false }: { engagementDay?: boolean }) {
         </div>
         <div className="flex items-center gap-2">
           {engagementDay && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-rose px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white shadow-[0_0_12px_rgb(var(--rose-rgb)/0.45)]">
+            <span className="inline-flex items-center gap-1 rounded-full bg-secondary px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white">
               <Heart size={10} className="fill-white" />
               Today
             </span>
@@ -65,9 +65,9 @@ export function TopBar({ engagementDay = false }: { engagementDay?: boolean }) {
         </div>
       </div>
       {engagementDay && (
-        <div className="border-t border-line/50 bg-gradient-to-r from-sky-400/15 via-rose/10 to-sky-400/15 px-4 py-1.5 text-center">
-          <p className="text-[11px] font-semibold tracking-wide text-rose-700">
-            Engagement Day — sky &amp; pink, just for today
+        <div className="border-t border-line/50 bg-secondary-50 px-4 py-1.5 text-center">
+          <p className="text-[11px] font-semibold tracking-wide text-secondary">
+            Engagement Day — light sky &amp; hot pink
           </p>
         </div>
       )}

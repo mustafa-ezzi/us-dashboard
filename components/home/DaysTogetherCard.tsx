@@ -13,8 +13,7 @@ export function DaysTogetherCard() {
 
   return (
     <section className="card overflow-hidden">
-      <div className="relative bg-gradient-to-br from-rose to-rose-700 px-5 py-6 text-white">
-        <div className="absolute -right-6 -top-6 h-32 w-32 rounded-full bg-white/10 blur-2xl" />
+      <div className="relative bg-rose px-5 py-6 text-white">
         <div className="absolute right-4 top-4 opacity-30">
           <Heart size={28} fill="white" stroke="white" />
         </div>

@@ -16,6 +16,7 @@ import { notifyPartnerDatePlanned, notifyPartnerDateResponse } from "./push/clie
 import {
   type AppState,
   type DatePlanStatus,
+  type Memory,
   type MoodScore,
   type PartnerKey,
   type RuleStatus,
@@ -196,6 +197,14 @@ interface StoreValue {
     memoryDateISO: string;
     tags: string[];
     imageFile?: File;
+  }) => Promise<void>;
+  updateMemory: (input: {
+    id: string;
+    text: string;
+    memoryDateISO: string;
+    tags: string[];
+    imageFile?: File;
+    removeImage?: boolean;
   }) => Promise<void>;
   removeMemory: (id: string) => Promise<void>;
   // secret messages
@@ -1152,6 +1161,63 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     [supabaseRequired]
   );
 
+  const updateMemory = useCallback<StoreValue["updateMemory"]>(
+    async ({ id, text, memoryDateISO, tags, imageFile, removeImage }) => {
+      const sb = supabaseRequired();
+      let imageUrl: string | null | undefined;
+
+      if (removeImage) {
+        imageUrl = null;
+      }
+
+      if (imageFile && coupleId) {
+        const fileName = `${coupleId}/${Date.now()}-${imageFile.name}`;
+        const { error: uploadError } = await sb.storage
+          .from("memories")
+          .upload(fileName, imageFile);
+        if (!uploadError) {
+          const { data } = sb.storage.from("memories").getPublicUrl(fileName);
+          imageUrl = data.publicUrl;
+        }
+      }
+
+      const patch: Record<string, unknown> = {
+        text,
+        memory_date: memoryDateISO,
+        tags,
+      };
+      if (removeImage || imageFile) {
+        patch.image_url = imageUrl ?? null;
+      }
+
+      const res = await sb
+        .from("memories")
+        .update(patch)
+        .eq("id", id)
+        .select("*")
+        .single();
+      const data = res.data as MemoryRow | null;
+      if (res.error || !data) return;
+
+      setState((s) => ({
+        ...s,
+        memories: s.memories.map((m) =>
+          m.id === id
+            ? {
+                id: data.id,
+                text: data.text,
+                imageUrl: data.image_url ?? undefined,
+                tags: (data.tags ?? []) as Memory["tags"],
+                memoryDateISO: data.memory_date,
+                createdISO: data.created_at,
+              }
+            : m
+        ),
+      }));
+    },
+    [coupleId, supabaseRequired]
+  );
+
   const addSecretMessage = useCallback<StoreValue["addSecretMessage"]>(
     async ({ dateISO, time, note, mood, voiceBlob }) => {
       const sb = supabaseRequired();
@@ -1260,6 +1326,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       removeImmaturity,
       logKindAct,
       addMemory,
+      updateMemory,
       removeMemory,
       addSecretMessage,
       removeSecretMessage,
@@ -1293,6 +1360,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       removeImmaturity,
       logKindAct,
       addMemory,
+      updateMemory,
       removeMemory,
       addSecretMessage,
       removeSecretMessage,
