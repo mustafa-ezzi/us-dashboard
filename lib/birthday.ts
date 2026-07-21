@@ -34,7 +34,7 @@ export const ENGAGEMENT_NOTE = {
 export const ENGAGEMENT_DAY_ROMANCE = {
   bannerTitle: "Scoreboards are closed today",
   bannerBody:
-    "No apologies to tally. No immature moments to log. Just us — soft, intentional, and a little spoiled by the day.",
+    "No apologies to tally. No immature moments to log. Just us soft, intentional, and a little spoiled by the day.",
   vowTitle: "A quiet vow",
   vow: "I choose you on the ordinary Tuesdays and on the days that rewrite the calendar. Today is one of those.",
   letterTitle: "A letter, just for today",
@@ -43,7 +43,7 @@ export const ENGAGEMENT_DAY_ROMANCE = {
 
 If this app usually measures moods and kind acts, today it gets to measure something quieter: how lucky I feel that the future has your name in it.
 
-I don't need a perfect day. I need a true one — the kind where we laugh, get a little nervous, hold hands through the not-knowing, and still choose each other.
+I don't need a perfect day. I need a true one  the kind where we laugh, get a little nervous, hold hands through the not-knowing, and still choose each other.
 
 Thank you for being my soft place and my brave place.
 Today belongs to us.
@@ -54,13 +54,13 @@ Today belongs to us.
     "You make ordinary plans feel like a life.",
     "I trust the person I'm becoming beside you.",
     "Our love is patient, practical, and still a little magic.",
-    "Home isn't a place — it's how you look at me when I'm trying.",
+    "Home isn't a place  it's how you look at me when I'm trying.",
   ],
 } as const;
 
 export const BIRTHDAY_NOTE = {
   headline: "Happy Birthday, Ummehani",
   subhead: "A small thing built with care.",
-  about: `This app isn't about being romantic. It's about being present. It's about saying — with data, design, and effort — "I pay attention to us." That's probably the most mature, most practical, most Ummehani-approved kind of love there is.`,
-  fromMustafa: `I'm not immature, and I'm not irresponsible — I just get nervous when something matters. I'm working on that, and I'm committed to showing up as someone you can always count on.`,
+  about: `This app isn't about being romantic. It's about being present. It's about saying  with data, design, and effort  "I pay attention to us." That's probably the most mature, most practical, most Ummehani-approved kind of love there is.`,
+  fromMustafa: `I'm not immature, and I'm not irresponsible  I just get nervous when something matters. I'm working on that, and I'm committed to showing up as someone you can always count on.`,
 } as const;
