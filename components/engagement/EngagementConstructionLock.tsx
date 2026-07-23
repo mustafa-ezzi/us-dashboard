@@ -24,7 +24,10 @@ function useLockActive() {
 
   useEffect(() => {
     setMounted(true);
-    const tick = () => setActive(shouldShowEngagementLock());
+    const tick = () => {
+      const next = shouldShowEngagementLock();
+      setActive((prev) => (prev === next ? prev : next));
+    };
     tick();
     const id = setInterval(tick, 1000);
     return () => clearInterval(id);

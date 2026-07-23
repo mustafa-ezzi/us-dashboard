@@ -293,7 +293,20 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         return;
       }
 
-      if (event === "SIGNED_OUT" || event === "INITIAL_SESSION") {
+      // Only clear on a real sign-out / empty bootstrap.
+      // Transient null sessions (e.g. refresh blip after a device clock jump)
+      // must not wipe the user and cause lock ↔ login flicker.
+      if (event === "SIGNED_OUT") {
+        setUser(null);
+        setPartner(null);
+        setCoupleId(null);
+        setState(emptyState);
+        setReady(false);
+        setAuthStatus("signed-out");
+        return;
+      }
+
+      if (event === "INITIAL_SESSION") {
         setUser(null);
         setPartner(null);
         setCoupleId(null);

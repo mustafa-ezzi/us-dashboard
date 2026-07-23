@@ -19,29 +19,61 @@ import { Loader2, AlertTriangle } from "lucide-react";
 export function AppShell({ children }: { children: ReactNode }) {
   const { authStatus, ready, partner, state } = useStore();
 
+  // Lock sits above auth UI so session flicker from clock changes
+  // doesn't flash login / loader through the construction screen.
+  const lockOverlay = <EngagementConstructionLock />;
+
   if (authStatus === "no-config") {
-    return <ConfigMissingScreen />;
+    return (
+      <>
+        {lockOverlay}
+        <ConfigMissingScreen />
+      </>
+    );
   }
 
   if (authStatus === "loading") {
-    return <FullScreenLoader />;
+    return (
+      <>
+        {lockOverlay}
+        <FullScreenLoader />
+      </>
+    );
   }
 
   if (authStatus === "signed-out") {
-    return <LoginScreen />;
+    return (
+      <>
+        {lockOverlay}
+        <LoginScreen />
+      </>
+    );
   }
 
-  if (!ready) return <FullScreenLoader />;
+  if (!ready) {
+    return (
+      <>
+        {lockOverlay}
+        <FullScreenLoader />
+      </>
+    );
+  }
 
-  if (!partner) return <NotEnrolledScreen />;
+  if (!partner) {
+    return (
+      <>
+        {lockOverlay}
+        <NotEnrolledScreen />
+      </>
+    );
+  }
 
   const engagementDay = isEngagementDay(state.settings.engagementISO);
   const showBirthdaySplash = !engagementDay && isBirthdaySplashEnabled();
 
   return (
     <EngagementDayChrome active={engagementDay}>
-      {/* Timed construction lock — covers the whole app until unlock */}
-      <EngagementConstructionLock />
+      {lockOverlay}
       {engagementDay && <EngagementSplash />}
       {showBirthdaySplash && <BirthdaySplash />}
       <div className="relative mx-auto flex min-h-screen w-full max-w-md flex-col bg-cream transition-colors duration-500">
