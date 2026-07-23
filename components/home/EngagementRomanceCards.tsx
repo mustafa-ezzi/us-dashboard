@@ -45,13 +45,37 @@ export function EngagementRomanceCards() {
 export function EngagementRomanceExtras() {
   const [letterOpen, setLetterOpen] = useState(false);
   const [hearted, setHearted] = useState(0);
+  const [burst, setBurst] = useState(false);
+
+  const openLetter = () => {
+    setLetterOpen((v) => {
+      const next = !v;
+      if (next) {
+        setBurst(true);
+        setTimeout(() => setBurst(false), 900);
+      }
+      return next;
+    });
+  };
 
   return (
     <div className="space-y-3">
-      <section className="card overflow-hidden">
+      <section className="card relative overflow-hidden">
+        {burst && (
+          <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center gap-3">
+            {[0, 1, 2, 3, 4].map((i) => (
+              <Heart
+                key={i}
+                size={14 + i * 2}
+                className="animate-pop-in fill-secondary text-secondary opacity-80"
+                style={{ animationDelay: `${i * 40}ms` }}
+              />
+            ))}
+          </div>
+        )}
         <button
           type="button"
-          onClick={() => setLetterOpen((v) => !v)}
+          onClick={openLetter}
           className="flex w-full items-center gap-3 p-4 text-left transition hover:bg-rose-50/60"
         >
           <span className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-secondary text-white">

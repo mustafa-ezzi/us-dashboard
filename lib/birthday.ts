@@ -32,9 +32,9 @@ export const ENGAGEMENT_NOTE = {
 
 /** Home replacements for apology / immaturity counters on engagement day. */
 export const ENGAGEMENT_DAY_ROMANCE = {
-  bannerTitle: "Scoreboards are closed today",
+  bannerTitle: "Today is only for softness",
   bannerBody:
-    "No apologies to tally. No immature moments to log. Just us soft, intentional, and a little spoiled by the day.",
+    "Scoreboards are closed. The whole app is dressed in sky blue and hot pink  just for the two of you.",
   vowTitle: "A quiet vow",
   vow: "I choose you on the ordinary Tuesdays and on the days that rewrite the calendar. Today is one of those.",
   letterTitle: "A letter, just for today",
@@ -56,6 +56,18 @@ Today belongs to us.
     "Our love is patient, practical, and still a little magic.",
     "Home isn't a place  it's how you look at me when I'm trying.",
   ],
+  ritualsTitle: "Our day, gently",
+  ritualsSubtitle: "Tap each one as you live it  no pressure, just presence.",
+  rituals: [
+    { id: "hold", label: "Hold hands without rushing" },
+    { id: "say", label: "Say the real reason you're glad" },
+    { id: "photo", label: "Take one photo for the memory jar" },
+    { id: "plan", label: "Pick one tiny plan for after today" },
+    { id: "rest", label: "Rest together, even for ten minutes" },
+  ],
+  softNoteTitle: "Leave her a soft note",
+  softNoteHint: "Saved as a kind act  she'll see it on Home.",
+  softNotePlaceholder: "Something true. Something small. Something hers.",
 } as const;
 
 export const BIRTHDAY_NOTE = {

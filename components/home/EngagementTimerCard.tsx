@@ -1,11 +1,18 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useStore } from "@/lib/store";
 import { isEngagementDay } from "@/lib/birthday";
 import { timeUntilDate } from "@/lib/utils";
 import { format } from "date-fns";
 import { Gem, Heart, Sparkles } from "lucide-react";
+
+function formatEngagementDay(iso: string): string {
+  const [y, m, d] = iso.slice(0, 10).split("-").map(Number);
+  if (!y || !m || !d) return iso.slice(0, 10);
+  return format(new Date(y, m - 1, d), "MMM d, yyyy");
+}
 
 export function EngagementTimerCard() {
   const { state } = useStore();
@@ -29,7 +36,14 @@ export function EngagementTimerCard() {
           <div>
             <p className="stat-label">Engagement countdown</p>
             <p className="mt-1 text-sm text-ink-soft">
-              No engagement date is set yet.
+              Set the day you plan to get engaged in{" "}
+              <Link
+                href="/settings"
+                className="font-semibold text-rose-700 underline-offset-2 hover:underline"
+              >
+                Settings
+              </Link>
+              .
             </p>
           </div>
         </div>
@@ -37,7 +51,7 @@ export function EngagementTimerCard() {
     );
   }
 
-  const target = format(new Date(engagementISO), "MMM d, yyyy");
+  const target = formatEngagementDay(engagementISO);
 
   if (todayIsTheDay) {
     return (
@@ -76,10 +90,18 @@ export function EngagementTimerCard() {
           </p>
           <p className="mt-2 text-xl font-semibold">That day has arrived ✓</p>
           <p className="mt-1 text-sm text-white/80">Planned for {target}</p>
+          <Link
+            href="/settings"
+            className="mt-3 inline-block text-xs font-medium text-white underline-offset-2 hover:underline"
+          >
+            Update in Settings
+          </Link>
         </div>
       </section>
     );
   }
+
+  const dayLabel = remaining.days === 1 ? "day" : "days";
 
   return (
     <section className="card overflow-hidden">
@@ -91,7 +113,9 @@ export function EngagementTimerCard() {
             </p>
             <p className="mt-2 text-3xl font-semibold tabular-nums tracking-tight">
               {remaining.days}
-              <span className="ml-1 text-lg font-medium text-white/85">days</span>
+              <span className="ml-1 text-lg font-medium text-white/85">
+                {dayLabel}
+              </span>
             </p>
             <p className="mt-2 font-mono text-sm tabular-nums text-white/90">
               {String(remaining.hours).padStart(2, "0")}:

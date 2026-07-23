@@ -45,21 +45,41 @@ export function elapsedSince(fromISO: string, now: Date = new Date()): ElapsedTi
   return { days, hours, minutes, seconds, totalMs: diff };
 }
 
-/** Countdown to a calendar date at local midnight. Returns null if that date is today or past. */
+/** Countdown to a calendar date. Days are whole calendar days left (not floor of hours). */
 export function timeUntilDate(
   dateISO: string,
   now: Date = new Date()
 ): ElapsedTime | null {
   const [y, m, d] = dateISO.slice(0, 10).split("-").map(Number);
   if (!y || !m || !d) return null;
-  const target = new Date(y, m - 1, d, 0, 0, 0, 0);
-  const diff = target.getTime() - now.getTime();
-  if (diff <= 0) return null;
-  const days = Math.floor(diff / 86_400_000);
+
+  const startOfToday = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate()
+  );
+  const targetDay = new Date(y, m - 1, d);
+  const calendarDays = Math.round(
+    (targetDay.getTime() - startOfToday.getTime()) / 86_400_000
+  );
+
+  // Today or already past — callers use isEngagementDay for the "it's today" state.
+  if (calendarDays <= 0) return null;
+
+  // Live clock counts down to local midnight on the target date.
+  const targetMidnight = new Date(y, m - 1, d, 0, 0, 0, 0);
+  const diff = Math.max(0, targetMidnight.getTime() - now.getTime());
   const hours = Math.floor((diff % 86_400_000) / 3_600_000);
   const minutes = Math.floor((diff % 3_600_000) / 60_000);
   const seconds = Math.floor((diff % 60_000) / 1_000);
-  return { days, hours, minutes, seconds, totalMs: diff };
+
+  return {
+    days: calendarDays,
+    hours,
+    minutes,
+    seconds,
+    totalMs: diff,
+  };
 }
 
 export function isFutureDate(dateISO: string): boolean {

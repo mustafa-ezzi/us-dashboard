@@ -18,7 +18,11 @@ const items = [
 type AlertKey = "dates" | "mood" | "contract";
 type SeenMap = Partial<Record<AlertKey, string>>;
 
-export function BottomNav() {
+export function BottomNav({
+  engagementDay = false,
+}: {
+  engagementDay?: boolean;
+}) {
   const pathname = usePathname() ?? "/";
   const { partner, state, user } = useStore();
   const storageKey = user ? `us-dashboard:tab-seen:${user.id}` : null;
@@ -91,7 +95,12 @@ export function BottomNav() {
 
   return (
     <nav className="fixed inset-x-0 bottom-0 z-30 mx-auto w-full max-w-md">
-      <div className="mx-3 mb-3 rounded-3xl border border-line bg-white/95 shadow-card backdrop-blur-md pb-safe">
+      <div
+        className={cn(
+          "mx-3 mb-3 rounded-3xl border bg-white/95 shadow-card backdrop-blur-md pb-safe",
+          engagementDay ? "border-secondary/35" : "border-line"
+        )}
+      >
         <ul className="grid grid-cols-5 px-2 py-2">
           {items.map(({ href, label, icon: Icon }) => {
             const active =
@@ -105,7 +114,9 @@ export function BottomNav() {
                   className={cn(
                     "flex flex-col items-center gap-1 rounded-2xl py-2 text-[11px] font-medium transition-all duration-200 active:scale-95",
                     active
-                      ? "text-rose"
+                      ? engagementDay
+                        ? "text-secondary"
+                        : "text-rose"
                       : "text-ink-muted hover:text-ink-soft"
                   )}
                   aria-current={active ? "page" : undefined}
@@ -113,12 +124,21 @@ export function BottomNav() {
                   <span
                     className={cn(
                       "relative grid h-9 w-9 place-items-center rounded-2xl transition-all duration-200",
-                      active ? "bg-rose-100 scale-105" : "bg-transparent"
+                      active
+                        ? engagementDay
+                          ? "scale-105 bg-secondary-100"
+                          : "scale-105 bg-rose-100"
+                        : "bg-transparent"
                     )}
                   >
                     <Icon size={20} strokeWidth={active ? 2.4 : 2} />
                     {alertCount > 0 && !active && (
-                      <span className="absolute -right-1 -top-1 grid min-h-5 min-w-5 place-items-center rounded-full bg-rose px-1 text-[10px] font-bold leading-none text-white shadow-card ring-2 ring-white">
+                      <span
+                        className={cn(
+                          "absolute -right-1 -top-1 grid min-h-5 min-w-5 place-items-center rounded-full px-1 text-[10px] font-bold leading-none text-white shadow-card ring-2 ring-white",
+                          engagementDay ? "bg-secondary" : "bg-rose"
+                        )}
+                      >
                         {alertCount > 9 ? "9+" : alertCount}
                       </span>
                     )}

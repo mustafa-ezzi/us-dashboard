@@ -9,6 +9,8 @@ import {
   EngagementRomanceCards,
   EngagementRomanceExtras,
 } from "./EngagementRomanceCards";
+import { EngagementDayRitual } from "@/components/engagement/EngagementDayRitual";
+import { EngagementSoftNote } from "@/components/engagement/EngagementSoftNote";
 import { LastKindActCard } from "./LastKindActCard";
 import { TodayMoodCard } from "./TodayMoodCard";
 import { EngagementTimerCard } from "./EngagementTimerCard";
@@ -42,7 +44,9 @@ export function HomeDashboard() {
       {engagementDay ? (
         <>
           <EngagementRomanceCards />
+          <EngagementDayRitual />
           <EngagementRomanceExtras />
+          <EngagementSoftNote />
         </>
       ) : (
         <div className="grid grid-cols-2 gap-3">

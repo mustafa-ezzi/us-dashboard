@@ -7,6 +7,8 @@ import { BottomNav } from "./BottomNav";
 import { LoginScreen } from "./auth/LoginScreen";
 import { BirthdaySplash } from "./birthday/BirthdaySplash";
 import { EngagementSplash } from "./birthday/EngagementSplash";
+import { EngagementDayAtmosphere } from "./engagement/EngagementDayAtmosphere";
+import { EngagementConstructionLock } from "./engagement/EngagementConstructionLock";
 import {
   isBirthdaySplashEnabled,
   isEngagementDay,
@@ -38,14 +40,17 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <EngagementDayChrome active={engagementDay}>
+      {/* Timed construction lock — covers the whole app until unlock */}
+      <EngagementConstructionLock />
       {engagementDay && <EngagementSplash />}
       {showBirthdaySplash && <BirthdaySplash />}
       <div className="relative mx-auto flex min-h-screen w-full max-w-md flex-col bg-cream transition-colors duration-500">
+        {engagementDay && <EngagementDayAtmosphere />}
         <TopBar engagementDay={engagementDay} />
         <main className="relative z-10 flex-1 px-4 pb-28 pt-4">
           <div className="animate-slide-up">{children}</div>
         </main>
-        <BottomNav />
+        <BottomNav engagementDay={engagementDay} />
       </div>
     </EngagementDayChrome>
   );

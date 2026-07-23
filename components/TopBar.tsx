@@ -19,13 +19,22 @@ const titles: Record<string, string> = {
 export function TopBar({ engagementDay = false }: { engagementDay?: boolean }) {
   const { state } = useStore();
   const pathname = usePathname();
-  const title = titles[pathname ?? "/"] ?? "Us";
+  const baseTitle = titles[pathname ?? "/"] ?? "Us";
+  const title =
+    engagementDay && (pathname === "/" || !pathname)
+      ? "Engagement Day"
+      : baseTitle;
 
   return (
     <header className="sticky top-0 z-20 border-b border-line/70 bg-cream/85 backdrop-blur-md transition-colors duration-500">
       <div className="flex items-center justify-between px-4 pt-safe pb-3">
         <div className="flex items-center gap-2">
-          <div className="grid h-9 w-9 place-items-center overflow-hidden rounded-2xl bg-white shadow-card">
+          <div
+            className={
+              "grid h-9 w-9 place-items-center overflow-hidden rounded-2xl bg-white shadow-card " +
+              (engagementDay ? "ring-2 ring-secondary/50" : "")
+            }
+          >
             <Image
               src="/logo.png"
               alt="Us Dashboard"
@@ -51,7 +60,12 @@ export function TopBar({ engagementDay = false }: { engagementDay?: boolean }) {
           <Link
             href="/secret-messages"
             aria-label="Secret messages"
-            className="grid h-10 w-10 place-items-center rounded-full border border-line bg-white text-ink-soft transition active:scale-95 hover:bg-rose-50"
+            className={
+              "grid h-10 w-10 place-items-center rounded-full border bg-white text-ink-soft transition active:scale-95 hover:bg-rose-50 " +
+              (engagementDay
+                ? "border-secondary/40 text-secondary"
+                : "border-line")
+            }
           >
             <Send size={17} />
           </Link>
@@ -67,7 +81,7 @@ export function TopBar({ engagementDay = false }: { engagementDay?: boolean }) {
       {engagementDay && (
         <div className="border-t border-line/50 bg-secondary-50 px-4 py-1.5 text-center">
           <p className="text-[11px] font-semibold tracking-wide text-secondary">
-            Engagement Day — light sky &amp; hot pink
+            Your world. Just the two of you. · Engagement Day
           </p>
         </div>
       )}
