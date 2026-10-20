@@ -9,18 +9,20 @@ import { BirthdaySplash } from "./birthday/BirthdaySplash";
 import { EngagementSplash } from "./birthday/EngagementSplash";
 import { EngagementDayAtmosphere } from "./engagement/EngagementDayAtmosphere";
 import { EngagementConstructionLock } from "./engagement/EngagementConstructionLock";
+import { OneYearAtmosphere } from "./oneyear/OneYearAtmosphere";
 import {
   isBirthdaySplashEnabled,
   isEngagementDay,
+  isOneYearDay,
 } from "@/lib/birthday";
 import { useStore } from "@/lib/store";
 import { Loader2, AlertTriangle } from "lucide-react";
 
+export type CelebrationTheme = "engagement" | "oneyear" | null;
+
 export function AppShell({ children }: { children: ReactNode }) {
   const { authStatus, ready, partner, state } = useStore();
 
-  // Lock sits above auth UI so session flicker from clock changes
-  // doesn't flash login / loader through the construction screen.
   const lockOverlay = <EngagementConstructionLock />;
 
   if (authStatus === "no-config") {
@@ -69,48 +71,58 @@ export function AppShell({ children }: { children: ReactNode }) {
   }
 
   const engagementDay = isEngagementDay(state.settings.engagementISO);
-  const showBirthdaySplash = !engagementDay && isBirthdaySplashEnabled();
+  const oneYearDay =
+    !engagementDay && isOneYearDay(state.settings.anniversaryISO);
+  const celebration: CelebrationTheme = engagementDay
+    ? "engagement"
+    : oneYearDay
+      ? "oneyear"
+      : null;
+  const showBirthdaySplash =
+    !celebration && isBirthdaySplashEnabled();
 
   return (
-    <EngagementDayChrome active={engagementDay}>
+    <CelebrationChrome theme={celebration}>
       {lockOverlay}
       {engagementDay && <EngagementSplash />}
       {showBirthdaySplash && <BirthdaySplash />}
       <div className="relative mx-auto flex min-h-screen w-full max-w-md flex-col bg-cream transition-colors duration-500">
         {engagementDay && <EngagementDayAtmosphere />}
-        <TopBar engagementDay={engagementDay} />
+        {oneYearDay && <OneYearAtmosphere />}
+        <TopBar celebration={celebration} />
         <main className="relative z-10 flex-1 px-4 pb-28 pt-4">
           <div className="animate-slide-up">{children}</div>
         </main>
-        <BottomNav engagementDay={engagementDay} />
+        <BottomNav celebration={celebration} />
       </div>
-    </EngagementDayChrome>
+    </CelebrationChrome>
   );
 }
 
-/** Sets html[data-theme=engagement] so CSS vars recolor the whole app for the day. */
-function EngagementDayChrome({
-  active,
+function CelebrationChrome({
+  theme,
   children,
 }: {
-  active: boolean;
+  theme: CelebrationTheme;
   children: ReactNode;
 }) {
   useEffect(() => {
     const root = document.documentElement;
-    if (active) {
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (theme === "engagement") {
       root.setAttribute("data-theme", "engagement");
-      const meta = document.querySelector('meta[name="theme-color"]');
       if (meta) meta.setAttribute("content", "#38BDF8");
+    } else if (theme === "oneyear") {
+      root.setAttribute("data-theme", "oneyear");
+      if (meta) meta.setAttribute("content", "#0891B2");
     } else {
       root.removeAttribute("data-theme");
-      const meta = document.querySelector('meta[name="theme-color"]');
       if (meta) meta.setAttribute("content", "#E91E8C");
     }
     return () => {
       root.removeAttribute("data-theme");
     };
-  }, [active]);
+  }, [theme]);
 
   return <>{children}</>;
 }

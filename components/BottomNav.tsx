@@ -19,10 +19,11 @@ type AlertKey = "dates" | "mood" | "contract";
 type SeenMap = Partial<Record<AlertKey, string>>;
 
 export function BottomNav({
-  engagementDay = false,
+  celebration = null,
 }: {
-  engagementDay?: boolean;
+  celebration?: "engagement" | "oneyear" | null;
 }) {
+  const celebrationDay = Boolean(celebration);
   const pathname = usePathname() ?? "/";
   const { partner, state, user } = useStore();
   const storageKey = user ? `us-dashboard:tab-seen:${user.id}` : null;
@@ -98,7 +99,7 @@ export function BottomNav({
       <div
         className={cn(
           "mx-3 mb-3 rounded-3xl border bg-white/95 shadow-card backdrop-blur-md pb-safe",
-          engagementDay ? "border-secondary/35" : "border-line"
+          celebrationDay ? "border-secondary/35" : "border-line"
         )}
       >
         <ul className="grid grid-cols-5 px-2 py-2">
@@ -114,7 +115,7 @@ export function BottomNav({
                   className={cn(
                     "flex flex-col items-center gap-1 rounded-2xl py-2 text-[11px] font-medium transition-all duration-200 active:scale-95",
                     active
-                      ? engagementDay
+                      ? celebrationDay
                         ? "text-secondary"
                         : "text-rose"
                       : "text-ink-muted hover:text-ink-soft"
@@ -125,7 +126,7 @@ export function BottomNav({
                     className={cn(
                       "relative grid h-9 w-9 place-items-center rounded-2xl transition-all duration-200",
                       active
-                        ? engagementDay
+                        ? celebrationDay
                           ? "scale-105 bg-secondary-100"
                           : "scale-105 bg-rose-100"
                         : "bg-transparent"
@@ -136,7 +137,7 @@ export function BottomNav({
                       <span
                         className={cn(
                           "absolute -right-1 -top-1 grid min-h-5 min-w-5 place-items-center rounded-full px-1 text-[10px] font-bold leading-none text-white shadow-card ring-2 ring-white",
-                          engagementDay ? "bg-secondary" : "bg-rose"
+                          celebrationDay ? "bg-secondary" : "bg-rose"
                         )}
                       >
                         {alertCount > 9 ? "9+" : alertCount}

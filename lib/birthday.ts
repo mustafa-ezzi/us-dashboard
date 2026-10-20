@@ -1,4 +1,4 @@
-import { todayKey } from "./utils";
+import { daysBetween, todayKey } from "./utils";
 
 /** Celebration splash copy + manual birthday on/off via env. */
 export const BIRTHDAY = {
@@ -21,6 +21,18 @@ export function isEngagementDay(
 ): boolean {
   if (!engagementISO) return false;
   return engagementISO.slice(0, 10) === todayKey();
+}
+
+/**
+ * True on the day "days together" hits 365.
+ * Preview anytime: NEXT_PUBLIC_ONE_YEAR_PREVIEW=true
+ */
+export function isOneYearDay(
+  anniversaryISO: string | null | undefined
+): boolean {
+  if (process.env.NEXT_PUBLIC_ONE_YEAR_PREVIEW === "true") return true;
+  if (!anniversaryISO) return false;
+  return daysBetween(anniversaryISO) === 365;
 }
 
 export const ENGAGEMENT_NOTE = {
@@ -68,6 +80,42 @@ Today belongs to us.
   softNoteTitle: "Leave her a soft note",
   softNoteHint: "Saved as a kind act  she'll see it on Home.",
   softNotePlaceholder: "Something true. Something small. Something hers.",
+} as const;
+
+/** One-year-together celebration (ocean theme). */
+export const ONE_YEAR_ROMANCE = {
+  bannerTitle: "365 days of us",
+  bannerBody:
+    "Scoreboards are closed. Moods are set to extra happy. The ocean theme is yours for the whole day — from mahila mitra to pasandida aurat.",
+  slideshowFrom: "from mahila mitra",
+  slideshowTo: "to pasandida aurat",
+  quotes: [
+    "Even if I master every language in the world, I would still be lost for words to describe your beauty.",
+    "If I were able to write my own destiny I would simply write your name and break the pen.",
+    "I fell in love with a pair of eyes, and then I became blind to all other eyes.",
+  ],
+  giftsTitle: "Little gifts, just for you",
+  gifts: [
+    {
+      name: "Beauty Secret Serum",
+      note: "For the glow that already lives in you — a little extra soft care.",
+    },
+    {
+      name: "Ultimate Night Glow",
+      note: "Nighttime calm for the woman who makes every evening feel like home.",
+    },
+    {
+      name: "Her Ease",
+      note: "For the days that ask more from your body — relief, rest, and someone who notices.",
+    },
+  ],
+  periodCareTitle: "Soft words for today",
+  periodCare: `I know you're on your periods, and I don't want you to push through alone. Rest when you need to. Ask for heat packs, chocolate, quiet, or my hand — whatever helps. You don't owe anyone a brave face today. I'm proud of how strong you are, and I'm here for the soft parts too. Take it slow, jaan. I've got you.`,
+  lockedTitle: "Paused for our year",
+  lockedBody:
+    "Apologies & immaturity stay locked. One year of choosing each other is the only score that matters.",
+  moodTitle: "Extra happy — both of us",
+  moodSubhead: "Today the mood dial goes all the way up. 365 days deserves that.",
 } as const;
 
 export const BIRTHDAY_NOTE = {

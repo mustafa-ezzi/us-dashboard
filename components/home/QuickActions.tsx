@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useStore } from "@/lib/store";
-import { isEngagementDay } from "@/lib/birthday";
+import { isEngagementDay, isOneYearDay } from "@/lib/birthday";
 import {
   BookOpen,
   CalendarHeart,
@@ -10,6 +10,7 @@ import {
   ScrollText,
   Send,
   SmilePlus,
+  Waves,
 } from "lucide-react";
 
 const normalActions = [
@@ -18,7 +19,7 @@ const normalActions = [
   { href: "/contract", label: "Add rule", icon: ScrollText },
 ] as const;
 
-const engagementActions = [
+const celebrationActions = [
   { href: "/secret-messages", label: "Secret note", icon: Send },
   { href: "/memories", label: "Memory jar", icon: BookOpen },
   { href: "/dates", label: "Celebrate", icon: CalendarHeart },
@@ -27,7 +28,10 @@ const engagementActions = [
 export function QuickActions() {
   const { state } = useStore();
   const engagementDay = isEngagementDay(state.settings.engagementISO);
-  const actions = engagementDay ? engagementActions : normalActions;
+  const oneYearDay =
+    !engagementDay && isOneYearDay(state.settings.anniversaryISO);
+  const celebration = engagementDay || oneYearDay;
+  const actions = celebration ? celebrationActions : normalActions;
 
   return (
     <section className="card p-4">
@@ -36,6 +40,11 @@ export function QuickActions() {
           <span className="inline-flex items-center gap-1 text-secondary">
             <Heart size={11} className="fill-secondary" />
             Engagement day actions
+          </span>
+        ) : oneYearDay ? (
+          <span className="inline-flex items-center gap-1 text-secondary">
+            <Waves size={11} />
+            One year actions
           </span>
         ) : (
           "Quick actions"
@@ -48,7 +57,7 @@ export function QuickActions() {
             href={href}
             className={
               "flex flex-col items-center justify-center gap-1.5 rounded-xl border px-2 py-3 text-center text-xs font-medium transition active:scale-[0.98] " +
-              (engagementDay
+              (celebration
                 ? "border-secondary/25 bg-secondary-50 text-ink-soft hover:border-secondary/50"
                 : "border-line bg-white text-ink-soft hover:bg-rose-50")
             }
@@ -56,7 +65,7 @@ export function QuickActions() {
             <span
               className={
                 "grid h-9 w-9 place-items-center rounded-xl " +
-                (engagementDay
+                (celebration
                   ? "bg-secondary text-white"
                   : "bg-rose-100 text-rose")
               }
